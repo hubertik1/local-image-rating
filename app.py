@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import html
 from pathlib import Path
 import re
 import unicodedata
@@ -74,6 +75,17 @@ def inject_custom_button_styles() -> None:
             background-color: #b91c1c !important;
             border-color: #991b1b !important;
         }
+
+        /* Fine alignment for Show labels beside File name */
+        .st-key-rating_show_labels {
+            position: relative !important;
+            top: -0.rem !important;
+        }
+        .st-key-rating_show_labels [data-testid="stCheckbox"] {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
         </style>
         """,
         unsafe_allow_html=True,
@@ -89,10 +101,28 @@ def get_image_paths() -> list[Path]:
     ensure_dirs()
     images = [
         path
-        for path in IMAGE_DIR.iterdir()
+        for path in IMAGE_DIR.rglob("*")
         if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
     ]
-    return sorted(images, key=lambda p: p.name.lower())
+    return sorted(images, key=lambda p: str(p.relative_to(IMAGE_DIR)).lower())
+
+
+def get_image_key(image_path: Path) -> str:
+    try:
+        return image_path.relative_to(IMAGE_DIR).as_posix()
+    except ValueError:
+        return image_path.as_posix()
+
+
+def get_image_label(image_path: Path) -> str:
+    try:
+        relative_path = image_path.relative_to(IMAGE_DIR)
+    except ValueError:
+        return ""
+
+    if relative_path.parent == Path("."):
+        return ""
+    return relative_path.parent.name
 
 
 def normalize_ascii(text: str) -> str:
@@ -136,6 +166,7 @@ def init_state() -> None:
         "phase": "setup",
         "name": "",
         "test_option": "emotions",
+        "show_labels": False,
         "selected_emotions": [],
         "images": [],
         "current_index": 0,
@@ -151,11 +182,17 @@ def init_state() -> None:
 
 
 def start_session(
-    name: str, test_option: str, selected_emotions: list[str], images: list[Path]
+    name: str,
+    test_option: str,
+    selected_emotions: list[str],
+    images: list[Path],
+    show_labels: bool,
 ) -> None:
     st.session_state.phase = "rating"
     st.session_state.name = name
     st.session_state.test_option = test_option
+    st.session_state.show_labels = show_labels
+    st.session_state.rating_show_labels = show_labels
     st.session_state.selected_emotions = selected_emotions
     st.session_state.images = [str(path) for path in images]
     st.session_state.current_index = 0
@@ -180,10 +217,11 @@ def build_results_dataframe() -> pd.DataFrame:
 
     for image_path in images:
         image_name = image_path.name
-        if image_name not in ratings:
+        image_key = get_image_key(image_path)
+        if image_key not in ratings:
             continue
 
-        record = ratings[image_name]
+        record = ratings[image_key]
         row: dict[str, object] = {
             "name": st.session_state.name,
             "test_option": test_option,
@@ -306,6 +344,7 @@ def render_setup_screen() -> None:
             options=[OPTION_QUALITY_LABEL, OPTION_EMOTIONS_LABEL],
             key="draft_option",
         )
+        st.checkbox("Show labels", key="draft_show_labels", value=False)
         start_clicked = st.button("Start", type="primary", disabled=start_disabled)
 
     selected_emotions: list[str] = []
@@ -329,6 +368,7 @@ def render_setup_screen() -> None:
             if selected_option_label == OPTION_EMOTIONS_LABEL
             else "quality"
         )
+        show_labels = bool(st.session_state.get("draft_show_labels", False))
 
         if not user_name:
             errors.append("Name is required.")
@@ -341,7 +381,13 @@ def render_setup_screen() -> None:
             for error in errors:
                 st.error(error)
         else:
-            start_session(user_name, test_option, selected_emotions, image_paths)
+            start_session(
+                user_name,
+                test_option,
+                selected_emotions,
+                image_paths,
+                show_labels,
+            )
 
 
 def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]:
@@ -415,7 +461,7 @@ def render_quality_form(current_index: int) -> tuple[bool, dict[str, str], str]:
 
 
 def store_current_draft(current_path: Path, current_index: int) -> None:
-    image_name = current_path.name
+    image_key = get_image_key(current_path)
 
     if st.session_state.test_option == "emotions":
         emotion_values: dict[str, int] = {}
@@ -424,7 +470,7 @@ def store_current_draft(current_path: Path, current_index: int) -> None:
             value = st.session_state.get(key)
             if value in {1, 2, 3, 4, 5, 6, 7}:
                 emotion_values[emotion] = int(value)
-        st.session_state.draft_ratings[image_name] = {
+        st.session_state.draft_ratings[image_key] = {
             "emotion_values": emotion_values,
         }
     else:
@@ -433,17 +479,17 @@ def store_current_draft(current_path: Path, current_index: int) -> None:
         quality_score = st.session_state.get(quality_key)
         comment = st.session_state.get(comment_key, "")
 
-        st.session_state.draft_ratings[image_name] = {
+        st.session_state.draft_ratings[image_key] = {
             "quality_score": quality_score if quality_score in {"1", "0.5", "0"} else "",
             "comment": comment if isinstance(comment, str) else "",
         }
 
 
 def hydrate_form_state_from_saved_rating(current_path: Path, current_index: int) -> None:
-    image_name = current_path.name
-    saved_record = st.session_state.ratings.get(image_name)
+    image_key = get_image_key(current_path)
+    saved_record = st.session_state.ratings.get(image_key)
     if saved_record is None:
-        saved_record = st.session_state.draft_ratings.get(image_name, {})
+        saved_record = st.session_state.draft_ratings.get(image_key, {})
 
     if st.session_state.test_option == "emotions":
         saved_values: dict[str, int] = saved_record.get("emotion_values", {})
@@ -502,8 +548,30 @@ def render_rating_screen() -> None:
     next_clicked = False
 
     with left_col:
-        st.subheader(f"Image {current_index + 1} of {total}")
-        st.caption(f"File name: `{current_path.name}`")
+        if "rating_show_labels" not in st.session_state:
+            st.session_state.rating_show_labels = st.session_state.get("show_labels", False)
+        show_labels_now = bool(st.session_state.get("rating_show_labels", False))
+        image_label = get_image_label(current_path)
+
+        if show_labels_now and image_label:
+            st.markdown(
+                (
+                    f"<h3 style='margin:0;'>Image {current_index + 1} of {total} "
+                    f"<span style='font-size:0.56em; font-weight:500; color:#6b7280;'>"
+                    f"| Label: {html.escape(image_label)}</span></h3>"
+                ),
+                unsafe_allow_html=True,
+            )
+        else:
+            st.subheader(f"Image {current_index + 1} of {total}")
+
+        file_col, show_labels_col = st.columns([1.0, 0.20], gap="small")
+        with file_col:
+            st.caption(f"File name: `{current_path.name}`")
+        with show_labels_col:
+            st.checkbox("Show labels", key="rating_show_labels")
+
+        st.session_state.show_labels = bool(st.session_state.get("rating_show_labels", False))
         if current_path.exists():
             st.image(str(current_path), use_container_width=True)
         else:
@@ -546,16 +614,17 @@ def render_rating_screen() -> None:
         if not is_valid:
             st.error(error_message)
         else:
+            image_key = get_image_key(current_path)
             if st.session_state.test_option == "emotions":
-                st.session_state.ratings[current_path.name] = {
+                st.session_state.ratings[image_key] = {
                     "emotion_values": payload,
                 }
             else:
-                st.session_state.ratings[current_path.name] = {
+                st.session_state.ratings[image_key] = {
                     "quality_score": payload["quality_score"],
                     "comment": payload["comment"],
                 }
-            st.session_state.draft_ratings.pop(current_path.name, None)
+            st.session_state.draft_ratings.pop(image_key, None)
             st.session_state.current_index = current_index + 1
             st.rerun()
 
