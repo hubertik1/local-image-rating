@@ -8,6 +8,7 @@ import unicodedata
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 IMAGE_DIR = Path("new_images")
 OUTPUT_DIR = Path("output")
@@ -89,6 +90,67 @@ def inject_custom_button_styles() -> None:
         </style>
         """,
         unsafe_allow_html=True,
+    )
+
+
+def sync_keyboard_shortcuts(enabled: bool) -> None:
+    enabled_js = "true" if enabled else "false"
+    components.html(
+        f"""
+        <script>
+        (() => {{
+            const doc = window.parent.document;
+            doc.__ratingHotkeysEnabled = {enabled_js};
+
+            if (doc.__ratingHotkeysBound) {{
+                return;
+            }}
+            doc.__ratingHotkeysBound = true;
+
+            doc.addEventListener(
+                "keydown",
+                (event) => {{
+                    if (!doc.__ratingHotkeysEnabled || event.repeat) {{
+                        return;
+                    }}
+
+                    const active = doc.activeElement;
+                    const tagName = active?.tagName?.toLowerCase?.() ?? "";
+                    const inputType = active?.type?.toLowerCase?.() ?? "";
+                    const isTypingField =
+                        !!active &&
+                        (active.isContentEditable ||
+                            tagName === "textarea" ||
+                            tagName === "select" ||
+                            (tagName === "input" && !["radio", "checkbox"].includes(inputType)));
+                    if (isTypingField) {{
+                        return;
+                    }}
+
+                    let selector = "";
+                    if (event.key === "ArrowLeft") {{
+                        selector = ".st-key-previous_btn button:not([disabled])";
+                    }} else if (event.key === "ArrowRight" || event.key === "Enter") {{
+                        selector = ".st-key-next_btn button:not([disabled])";
+                    }} else {{
+                        return;
+                    }}
+
+                    const targetButton = doc.querySelector(selector);
+                    if (!targetButton) {{
+                        return;
+                    }}
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    targetButton.click();
+                }},
+                true
+            );
+        }})();
+        </script>
+        """,
+        height=0,
     )
 
 
@@ -329,6 +391,7 @@ def format_quality_option(value: str) -> str:
 
 
 def render_setup_screen() -> None:
+    sync_keyboard_shortcuts(False)
     st.title("Local image rating app")
 
     image_paths = get_image_paths()
@@ -523,6 +586,7 @@ def render_rating_screen() -> None:
     total = len(images)
 
     if total == 0:
+        sync_keyboard_shortcuts(False)
         st.warning("No images to rate. Return to the start screen.")
         if st.button("New session"):
             reset_session()
@@ -533,6 +597,7 @@ def render_rating_screen() -> None:
         render_finish_confirmation_dialog()
 
     if current_index >= total:
+        sync_keyboard_shortcuts(False)
         st.markdown("<div style='padding-top: 0.8rem;'></div>", unsafe_allow_html=True)
         st.success("No more images")
         st.info(f"Rated images: {len(st.session_state.ratings)} of {total}")
@@ -602,9 +667,15 @@ def render_rating_screen() -> None:
     with btn_right_col:
         col_previous, _, col_next = st.columns([1, 1.5, 1])
         with col_previous:
-            previous_clicked = st.button("Previous", disabled=current_index == 0)
+            previous_clicked = st.button(
+                "Previous",
+                key="previous_btn",
+                disabled=current_index == 0,
+            )
         with col_next:
-            next_clicked = st.button("Next", type="primary")
+            next_clicked = st.button("Next", key="next_btn", type="primary")
+
+    sync_keyboard_shortcuts(not st.session_state.finish_confirm_visible)
 
     if previous_clicked:
         st.session_state.finish_confirm_visible = False
@@ -637,6 +708,7 @@ def render_rating_screen() -> None:
 
 
 def render_finished_screen() -> None:
+    sync_keyboard_shortcuts(False)
     st.markdown("<div style='padding-top: 0.8rem;'></div>", unsafe_allow_html=True)
     st.success("Results saved.")
     st.write(f"Number of saved ratings: {st.session_state.saved_rows}")
