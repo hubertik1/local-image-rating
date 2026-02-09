@@ -86,8 +86,10 @@ def sync_keyboard_shortcuts(enabled: bool) -> None:
                     }}
 
                     const active = doc.activeElement;
+                    const target = event.target;
                     const tagName = active?.tagName?.toLowerCase?.() ?? "";
                     const inputType = active?.type?.toLowerCase?.() ?? "";
+                    const activeRole = active?.getAttribute?.("role") ?? "";
                     const isTypingField =
                         !!active &&
                         (active.isContentEditable ||
@@ -95,6 +97,30 @@ def sync_keyboard_shortcuts(enabled: bool) -> None:
                             tagName === "select" ||
                             (tagName === "input" && !["radio", "checkbox"].includes(inputType)));
                     if (isTypingField) {{
+                        return;
+                    }}
+
+                    const isInsideRadioUi = (element) =>
+                        !!element &&
+                        (
+                            !!element.closest?.('div[role="radiogroup"]') ||
+                            !!element.closest?.('[data-testid="stRadio"]')
+                        );
+
+                    const targetTag = target?.tagName?.toLowerCase?.() ?? "";
+                    const targetType = target?.type?.toLowerCase?.() ?? "";
+                    const targetRole = target?.getAttribute?.("role") ?? "";
+                    const isRadioInteraction =
+                        (tagName === "input" && inputType === "radio") ||
+                        activeRole === "radio" ||
+                        (targetTag === "input" && targetType === "radio") ||
+                        targetRole === "radio" ||
+                        isInsideRadioUi(active) ||
+                        isInsideRadioUi(target);
+
+                    if ((event.key === "ArrowUp" || event.key === "ArrowDown") && isRadioInteraction) {{
+                        event.preventDefault();
+                        event.stopPropagation();
                         return;
                     }}
 
@@ -107,13 +133,14 @@ def sync_keyboard_shortcuts(enabled: bool) -> None:
                         return;
                     }}
 
+                    event.preventDefault();
+                    event.stopPropagation();
+
                     const targetButton = doc.querySelector(selector);
                     if (!targetButton) {{
                         return;
                     }}
 
-                    event.preventDefault();
-                    event.stopPropagation();
                     targetButton.click();
                 }},
                 true
