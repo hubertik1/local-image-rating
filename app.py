@@ -553,17 +553,21 @@ def render_rating_screen() -> None:
         show_labels_now = bool(st.session_state.get("rating_show_labels", False))
         image_label = get_image_label(current_path)
 
-        if show_labels_now and image_label:
-            st.markdown(
-                (
-                    f"<h3 style='margin:0;'>Image {current_index + 1} of {total} "
-                    f"<span style='font-size:0.56em; font-weight:500; color:#6b7280;'>"
-                    f"| Label: {html.escape(image_label)}</span></h3>"
-                ),
-                unsafe_allow_html=True,
-            )
-        else:
+        header_image_col, header_label_col = st.columns([0.64, 0.36], gap="small")
+        with header_image_col:
             st.subheader(f"Image {current_index + 1} of {total}")
+        with header_label_col:
+            if show_labels_now and image_label:
+                st.markdown(
+                    (
+                        "<div style='font-size:1.5rem; font-weight:600; "
+                        "text-align:right; line-height:1.2; margin-top:1.2rem;'>"
+                        f"Label: <span style='color:#1d4ed8;'>{html.escape(image_label)}</span></div>"
+                    ),
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown("&nbsp;", unsafe_allow_html=True)
 
         file_col, show_labels_col = st.columns([1.0, 0.20], gap="small")
         with file_col:
