@@ -33,6 +33,14 @@ def inject_custom_button_styles() -> None:
     st.markdown(
         """
         <style>
+        /* Reduce top whitespace across all Streamlit views */
+        [data-testid="stAppViewContainer"] > .main {
+            padding-top: calc(1.7rem) !important;
+        }
+        .block-container {
+            padding-top: calc(1.7rem) !important;
+        }
+
         /* Finish button: red text + red border */
         .st-key-finish_btn button,
         button[id*="finish_btn"] {
