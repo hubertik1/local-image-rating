@@ -506,6 +506,15 @@ def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]
         div[data-testid="stRadio"] label[data-baseweb="radio"] p {
             font-size: 0.9rem !important;
         }
+        /* Tighter vertical spacing between emotion rows */
+        div[class*="st-key-emotion_score_"] {
+            margin-top: -0.36rem !important;
+            margin-bottom: -0.36rem !important;
+        }
+        div[class*="st-key-emotion_score_"] div[data-testid="stRadio"] {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -687,7 +696,7 @@ def render_rating_screen() -> None:
         )
         if st.session_state.test_option == "emotions":
             st.markdown(
-                "<div style='margin: 0 0 0.45rem 0;'>Emotion rating (1-7):</div>",
+                "<div style='margin: 0 0 -0.5rem 0;'>Emotion rating (1-7):</div>",
                 unsafe_allow_html=True,
             )
             is_valid, payload, error_message = render_emotions_form(current_index)
