@@ -67,7 +67,7 @@ def build_emotion_column_map(emotions: list[str]) -> dict[str, str]:
     mapping: dict[str, str] = {}
     used: set[str] = set()
     for emotion in emotions:
-        base = f"emotion_{sanitize_for_column(emotion)}"
+        base = sanitize_for_column(emotion)
         candidate = base
         suffix = 2
         while candidate in used:
