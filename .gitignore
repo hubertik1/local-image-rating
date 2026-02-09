@@ -416,3 +416,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Local image inputs
+new_images/
+
+# Local app outputs
+output/
