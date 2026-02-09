@@ -685,7 +685,9 @@ def render_rating_screen() -> None:
 
         st.session_state.show_labels = bool(st.session_state.get("rating_show_labels", False))
         if current_path.exists():
-            st.image(str(current_path), use_container_width=True)
+            image_col, _ = st.columns([10, 0.05], gap="small")
+            with image_col:
+                st.image(str(current_path), use_container_width=True)
         else:
             st.error(f"Cannot load image: {current_path.name}")
 
