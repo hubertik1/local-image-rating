@@ -126,7 +126,7 @@ def build_results_dataframe() -> pd.DataFrame:
 def save_results_csv() -> None:
     ensure_dirs()
     dataframe = build_results_dataframe()
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%d%m%Y_%H%M%S")
     safe_name = sanitize_for_filename(st.session_state.name)
     output_path = OUTPUT_DIR / f"results_{timestamp}_{safe_name}.csv"
     dataframe.to_csv(output_path, index=False, encoding="utf-8-sig")
