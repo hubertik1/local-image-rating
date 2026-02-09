@@ -254,7 +254,7 @@ def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]
         unsafe_allow_html=True,
     )
     selected_emotions: list[str] = st.session_state.selected_emotions
-    values: dict[str, int] = {}
+    raw_values: dict[str, int | None] = {}
 
     for emotion_idx, emotion in enumerate(selected_emotions):
         key = f"emotion_score_{current_index}_{emotion_idx}"
@@ -265,18 +265,20 @@ def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]
                 unsafe_allow_html=True,
             )
         with rating_col:
-            values[emotion] = st.radio(
+            raw_values[emotion] = st.radio(
                 label=f"{emotion} rating",
                 options=[1, 2, 3, 4, 5, 6, 7],
-                index=3,
+                index=None,
                 horizontal=True,
                 key=key,
                 label_visibility="collapsed",
             )
 
-    is_valid = len(values) == len(selected_emotions)
-    error = "" if is_valid else "Set a score for all emotions."
-    return is_valid, values, error
+    if any(value is None for value in raw_values.values()):
+        return False, {}, "Set a score for all emotions."
+
+    values = {emotion: int(value) for emotion, value in raw_values.items() if value is not None}
+    return True, values, ""
 
 
 def render_quality_form(current_index: int) -> tuple[bool, dict[str, str], str]:
