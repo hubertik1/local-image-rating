@@ -29,7 +29,7 @@ DEFAULT_EMOTIONS = [
     "happiness",
     "suprise",
 ]
-DEFAULT_UNCHECKED_EMOTIONS = {"happiness", "suprise"}
+EMOTIONS_LEFT_COLUMN_COUNT = 12
 OPTION_EMOTIONS_LABEL = "Emotion-based rating"
 OPTION_QUALITY_LABEL = "Quality rating"
 
@@ -237,6 +237,7 @@ def init_state() -> None:
         "saved_csv_path": "",
         "saved_rows": 0,
         "finish_confirm_visible": False,
+        "error_alert_message": "",
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -330,6 +331,34 @@ def request_finish_confirmation() -> None:
     st.rerun()
 
 
+def request_error_alert(message: str) -> None:
+    st.session_state.error_alert_message = message
+    st.session_state.finish_confirm_visible = False
+    st.rerun()
+
+
+def _render_error_alert_inline() -> None:
+    st.error(st.session_state.error_alert_message)
+    if st.button("OK", key="error_alert_ok_inline", type="primary"):
+        st.session_state.error_alert_message = ""
+        st.rerun()
+
+
+if hasattr(st, "dialog"):
+
+    @st.dialog("Error")
+    def render_error_alert_dialog() -> None:
+        st.write(st.session_state.error_alert_message)
+        if st.button("OK", key="error_alert_ok_dialog", type="primary"):
+            st.session_state.error_alert_message = ""
+            st.rerun()
+
+else:
+
+    def render_error_alert_dialog() -> None:
+        _render_error_alert_inline()
+
+
 def _render_finish_confirmation_inline() -> None:
     st.warning("Are you sure you want to finish and save current ratings?")
     confirm_col, cancel_col = st.columns(2)
@@ -414,14 +443,20 @@ def render_setup_screen() -> None:
     with right_col:
         if selected_option_label == OPTION_EMOTIONS_LABEL:
             st.write("Choose emotions:")
+            emotions_left_col, emotions_right_col = st.columns(2, gap="medium")
             for idx, emotion in enumerate(DEFAULT_EMOTIONS):
-                is_checked_by_default = emotion not in DEFAULT_UNCHECKED_EMOTIONS
-                if st.checkbox(
-                    emotion,
-                    value=is_checked_by_default,
-                    key=f"draft_emotion_{idx}",
-                ):
-                    selected_emotions.append(emotion)
+                target_col = (
+                    emotions_left_col
+                    if idx < EMOTIONS_LEFT_COLUMN_COUNT
+                    else emotions_right_col
+                )
+                with target_col:
+                    if st.checkbox(
+                        emotion,
+                        value=idx < EMOTIONS_LEFT_COLUMN_COUNT,
+                        key=f"draft_emotion_{idx}",
+                    ):
+                        selected_emotions.append(emotion)
 
     if start_clicked:
         errors: list[str] = []
@@ -441,8 +476,7 @@ def render_setup_screen() -> None:
             errors.append("No images found in new_images.")
 
         if errors:
-            for error in errors:
-                st.error(error)
+            request_error_alert("\n".join(errors))
         else:
             start_session(
                 user_name,
@@ -675,7 +709,10 @@ def render_rating_screen() -> None:
         with col_next:
             next_clicked = st.button("Next", key="next_btn", type="primary")
 
-    sync_keyboard_shortcuts(not st.session_state.finish_confirm_visible)
+    sync_keyboard_shortcuts(
+        not st.session_state.finish_confirm_visible
+        and not bool(st.session_state.error_alert_message)
+    )
 
     if previous_clicked:
         st.session_state.finish_confirm_visible = False
@@ -687,7 +724,7 @@ def render_rating_screen() -> None:
     if next_clicked:
         st.session_state.finish_confirm_visible = False
         if not is_valid:
-            st.error(error_message)
+            request_error_alert(error_message)
         else:
             image_key = get_image_key(current_path)
             if st.session_state.test_option == "emotions":
@@ -722,6 +759,8 @@ def main() -> None:
     inject_custom_button_styles()
     ensure_dirs()
     init_state()
+    if st.session_state.error_alert_message:
+        render_error_alert_dialog()
 
     phase = st.session_state.phase
     if phase == "setup":
