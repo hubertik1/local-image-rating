@@ -352,6 +352,29 @@ def render_quality_form(current_index: int) -> tuple[bool, dict[str, str], str]:
     return True, {"quality_score": quality_score, "comment": comment}, ""
 
 
+def hydrate_form_state_from_saved_rating(current_path: Path, current_index: int) -> None:
+    image_name = current_path.name
+    saved_record = st.session_state.ratings.get(image_name, {})
+
+    if st.session_state.test_option == "emotions":
+        saved_values: dict[str, int] = saved_record.get("emotion_values", {})
+        for emotion_idx, emotion in enumerate(st.session_state.selected_emotions):
+            key = f"emotion_score_{current_index}_{emotion_idx}"
+            saved_value = saved_values.get(emotion)
+            if key not in st.session_state and saved_value in {1, 2, 3, 4, 5, 6, 7}:
+                st.session_state[key] = saved_value
+    else:
+        quality_key = f"quality_score_{current_index}"
+        comment_key = f"quality_comment_{current_index}"
+        saved_score = saved_record.get("quality_score")
+        saved_comment = saved_record.get("comment", "")
+
+        if quality_key not in st.session_state and saved_score in {"", "1", "0.5", "0"}:
+            st.session_state[quality_key] = saved_score
+        if comment_key not in st.session_state and isinstance(saved_comment, str):
+            st.session_state[comment_key] = saved_comment
+
+
 def render_rating_screen() -> None:
     images = [Path(path) for path in st.session_state.images]
     total = len(images)
@@ -374,7 +397,11 @@ def render_rating_screen() -> None:
         return
 
     current_path = images[current_index]
+    hydrate_form_state_from_saved_rating(current_path, current_index)
     left_col, _, right_col = st.columns([1.22, 0.08, 0.88], gap="medium")
+    finish_clicked = False
+    previous_clicked = False
+    next_clicked = False
 
     with left_col:
         st.subheader(f"Image {current_index + 1} of {total}")
@@ -398,11 +425,22 @@ def render_rating_screen() -> None:
         else:
             is_valid, payload, error_message = render_quality_form(current_index)
 
-        col_finish, _, col_next = st.columns([1, 1.5, 1])
-        with col_finish:
-            finish_clicked = st.button("Finish")
+    btn_left_col, _, btn_right_col = st.columns([1.22, 0.08, 0.88], gap="medium")
+    with btn_left_col:
+        finish_clicked = st.button("Finish")
+
+    with btn_right_col:
+        col_previous, _, col_next = st.columns([1, 1.5, 1])
+        with col_previous:
+            previous_clicked = st.button("Previous", disabled=current_index == 0)
         with col_next:
             next_clicked = st.button("Next", type="primary")
+
+    if previous_clicked:
+        st.session_state.finish_confirm_visible = False
+        if current_index > 0:
+            st.session_state.current_index = current_index - 1
+        st.rerun()
 
     if next_clicked:
         st.session_state.finish_confirm_visible = False
