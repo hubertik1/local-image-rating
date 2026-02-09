@@ -182,13 +182,11 @@ def build_results_dataframe() -> pd.DataFrame:
         row: dict[str, object] = {
             "name": st.session_state.name,
             "test_option": test_option,
-            "selected_emotions": ";".join(selected_emotions)
-            if test_option == "emotions"
-            else "",
             "image_name": image_name,
         }
 
         if test_option == "emotions":
+            row["selected_emotions"] = ";".join(selected_emotions)
             values: dict[str, int] = record.get("emotion_values", {})
             for emotion, column_name in emotion_column_map.items():
                 row[column_name] = values.get(emotion)
@@ -198,8 +196,9 @@ def build_results_dataframe() -> pd.DataFrame:
 
         rows.append(row)
 
-    columns = ["name", "test_option", "selected_emotions", "image_name"]
+    columns = ["name", "test_option", "image_name"]
     if test_option == "emotions":
+        columns.insert(2, "selected_emotions")
         columns.extend(emotion_column_map[emotion] for emotion in selected_emotions)
     else:
         columns.extend(["quality_score", "comment"])
