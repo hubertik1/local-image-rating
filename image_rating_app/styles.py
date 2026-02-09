@@ -12,6 +12,9 @@ def inject_custom_button_styles() -> None:
         }
         .block-container {
             padding-top: calc(1.7rem) !important;
+            max-width: 1700px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
 
         /* Finish button: red text + red border */
