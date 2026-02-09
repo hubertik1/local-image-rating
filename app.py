@@ -487,6 +487,7 @@ def render_rating_screen() -> None:
         render_finish_confirmation_dialog()
 
     if current_index >= total:
+        st.markdown("<div style='padding-top: 0.8rem;'></div>", unsafe_allow_html=True)
         st.success("No more images")
         st.info(f"Rated images: {len(st.session_state.ratings)} of {total}")
         if st.button("Finish and save CSV", type="primary", key="finish_all_btn"):
