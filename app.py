@@ -29,6 +29,46 @@ OPTION_EMOTIONS_LABEL = "Emotion-based rating"
 OPTION_QUALITY_LABEL = "Quality rating"
 
 
+def inject_custom_button_styles() -> None:
+    st.markdown(
+        """
+        <style>
+        /* Finish button: red text + red border */
+        .st-key-finish_btn button,
+        button[id*="finish_btn"] {
+            color: #b91c1c !important;
+            border: 1px solid #b91c1c !important;
+            background-color: #ffffff !important;
+        }
+        .st-key-finish_btn button:hover,
+        button[id*="finish_btn"]:hover {
+            background-color: #fef2f2 !important;
+            color: #991b1b !important;
+            border-color: #991b1b !important;
+        }
+
+        /* Confirm button in finish alert: red */
+        .st-key-confirm_finish_dialog button,
+        .st-key-confirm_finish_inline button,
+        button[id*="confirm_finish_dialog"],
+        button[id*="confirm_finish_inline"] {
+            color: #ffffff !important;
+            border: 1px solid #b91c1c !important;
+            background-color: #dc2626 !important;
+        }
+        .st-key-confirm_finish_dialog button:hover,
+        .st-key-confirm_finish_inline button:hover,
+        button[id*="confirm_finish_dialog"]:hover,
+        button[id*="confirm_finish_inline"]:hover {
+            background-color: #b91c1c !important;
+            border-color: #991b1b !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def ensure_dirs() -> None:
     IMAGE_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
@@ -427,7 +467,7 @@ def render_rating_screen() -> None:
 
     btn_left_col, _, btn_right_col = st.columns([1.22, 0.08, 0.88], gap="medium")
     with btn_left_col:
-        finish_clicked = st.button("Finish")
+        finish_clicked = st.button("Finish", key="finish_btn")
 
     with btn_right_col:
         col_previous, _, col_next = st.columns([1, 1.5, 1])
@@ -473,6 +513,7 @@ def render_finished_screen() -> None:
 
 def main() -> None:
     st.set_page_config(page_title="Image rating", layout="wide")
+    inject_custom_button_styles()
     ensure_dirs()
     init_state()
 
