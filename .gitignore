@@ -418,8 +418,10 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-# Local image inputs
-new_images/
+# Local image inputs (keep folder in git, ignore contents)
+new_images/*
+!new_images/.gitkeep
 
-# Local app outputs
-output/
+# Local app outputs (keep folder in git, ignore contents)
+output/*
+!output/.gitkeep
