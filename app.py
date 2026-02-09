@@ -237,12 +237,11 @@ def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]
 
     for emotion_idx, emotion in enumerate(selected_emotions):
         key = f"emotion_score_{current_index}_{emotion_idx}"
-        values[emotion] = st.slider(
+        values[emotion] = st.radio(
             label=emotion,
-            min_value=1,
-            max_value=7,
-            step=1,
-            value=4,
+            options=[1, 2, 3, 4, 5, 6, 7],
+            index=3,
+            horizontal=True,
             key=key,
         )
 
