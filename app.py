@@ -140,6 +140,7 @@ def init_state() -> None:
         "images": [],
         "current_index": 0,
         "ratings": {},
+        "draft_ratings": {},
         "saved_csv_path": "",
         "saved_rows": 0,
         "finish_confirm_visible": False,
@@ -159,6 +160,7 @@ def start_session(
     st.session_state.images = [str(path) for path in images]
     st.session_state.current_index = 0
     st.session_state.ratings = {}
+    st.session_state.draft_ratings = {}
     st.session_state.saved_csv_path = ""
     st.session_state.saved_rows = 0
     st.session_state.finish_confirm_visible = False
@@ -412,9 +414,36 @@ def render_quality_form(current_index: int) -> tuple[bool, dict[str, str], str]:
     return True, {"quality_score": quality_score, "comment": comment}, ""
 
 
+def store_current_draft(current_path: Path, current_index: int) -> None:
+    image_name = current_path.name
+
+    if st.session_state.test_option == "emotions":
+        emotion_values: dict[str, int] = {}
+        for emotion_idx, emotion in enumerate(st.session_state.selected_emotions):
+            key = f"emotion_score_{current_index}_{emotion_idx}"
+            value = st.session_state.get(key)
+            if value in {1, 2, 3, 4, 5, 6, 7}:
+                emotion_values[emotion] = int(value)
+        st.session_state.draft_ratings[image_name] = {
+            "emotion_values": emotion_values,
+        }
+    else:
+        quality_key = f"quality_score_{current_index}"
+        comment_key = f"quality_comment_{current_index}"
+        quality_score = st.session_state.get(quality_key)
+        comment = st.session_state.get(comment_key, "")
+
+        st.session_state.draft_ratings[image_name] = {
+            "quality_score": quality_score if quality_score in {"1", "0.5", "0"} else "",
+            "comment": comment if isinstance(comment, str) else "",
+        }
+
+
 def hydrate_form_state_from_saved_rating(current_path: Path, current_index: int) -> None:
     image_name = current_path.name
-    saved_record = st.session_state.ratings.get(image_name, {})
+    saved_record = st.session_state.ratings.get(image_name)
+    if saved_record is None:
+        saved_record = st.session_state.draft_ratings.get(image_name, {})
 
     if st.session_state.test_option == "emotions":
         saved_values: dict[str, int] = saved_record.get("emotion_values", {})
@@ -506,6 +535,7 @@ def render_rating_screen() -> None:
 
     if previous_clicked:
         st.session_state.finish_confirm_visible = False
+        store_current_draft(current_path, current_index)
         if current_index > 0:
             st.session_state.current_index = current_index - 1
         st.rerun()
@@ -524,6 +554,7 @@ def render_rating_screen() -> None:
                     "quality_score": payload["quality_score"],
                     "comment": payload["comment"],
                 }
+            st.session_state.draft_ratings.pop(current_path.name, None)
             st.session_state.current_index = current_index + 1
             st.rerun()
 
