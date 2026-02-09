@@ -231,19 +231,48 @@ def render_setup_screen() -> None:
 
 
 def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]:
-    st.write("Emotion rating (1-7):")
+    st.markdown(
+        """
+        <style>
+        /* Compact radio blocks for emotion ratings */
+        div[data-testid="stRadio"] {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        div[data-testid="stRadio"] div[role="radiogroup"] {
+            flex-wrap: nowrap !important;
+            gap: 0.22rem !important;
+        }
+        div[data-testid="stRadio"] label[data-baseweb="radio"] {
+            margin-right: 0 !important;
+        }
+        div[data-testid="stRadio"] label[data-baseweb="radio"] p {
+            font-size: 0.9rem !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     selected_emotions: list[str] = st.session_state.selected_emotions
     values: dict[str, int] = {}
 
     for emotion_idx, emotion in enumerate(selected_emotions):
         key = f"emotion_score_{current_index}_{emotion_idx}"
-        values[emotion] = st.radio(
-            label=emotion,
-            options=[1, 2, 3, 4, 5, 6, 7],
-            index=3,
-            horizontal=True,
-            key=key,
-        )
+        label_col, rating_col = st.columns([0.30, 0.70], gap="small")
+        with label_col:
+            st.markdown(
+                f"<div style='padding-top:0.28rem; white-space: nowrap;'>{emotion}</div>",
+                unsafe_allow_html=True,
+            )
+        with rating_col:
+            values[emotion] = st.radio(
+                label=f"{emotion} rating",
+                options=[1, 2, 3, 4, 5, 6, 7],
+                index=3,
+                horizontal=True,
+                key=key,
+                label_visibility="collapsed",
+            )
 
     is_valid = len(values) == len(selected_emotions)
     error = "" if is_valid else "Set a score for all emotions."
@@ -288,24 +317,35 @@ def render_rating_screen() -> None:
         return
 
     current_path = images[current_index]
-    st.subheader(f"Image {current_index + 1} of {total}")
-    st.caption(f"File name: `{current_path.name}`")
+    left_col, _, right_col = st.columns([1.22, 0.08, 0.88], gap="medium")
 
-    if current_path.exists():
-        st.image(str(current_path), use_container_width=True)
-    else:
-        st.error(f"Cannot load image: {current_path.name}")
+    with left_col:
+        st.subheader(f"Image {current_index + 1} of {total}")
+        st.caption(f"File name: `{current_path.name}`")
+        if current_path.exists():
+            st.image(str(current_path), use_container_width=True)
+        else:
+            st.error(f"Cannot load image: {current_path.name}")
 
-    if st.session_state.test_option == "emotions":
-        is_valid, payload, error_message = render_emotions_form(current_index)
-    else:
-        is_valid, payload, error_message = render_quality_form(current_index)
+    with right_col:
+        st.markdown(
+            "<h3 style='margin: 0 0 0.02rem 0;'>Ratings</h3>",
+            unsafe_allow_html=True,
+        )
+        if st.session_state.test_option == "emotions":
+            st.markdown(
+                "<div style='margin: 0 0 0.45rem 0;'>Emotion rating (1-7):</div>",
+                unsafe_allow_html=True,
+            )
+            is_valid, payload, error_message = render_emotions_form(current_index)
+        else:
+            is_valid, payload, error_message = render_quality_form(current_index)
 
-    col_next, col_finish = st.columns(2)
-    with col_next:
-        next_clicked = st.button("Next", type="primary")
-    with col_finish:
-        finish_clicked = st.button("Finish")
+        col_finish, _, col_next = st.columns([1, 1.5, 1])
+        with col_finish:
+            finish_clicked = st.button("Finish")
+        with col_next:
+            next_clicked = st.button("Next", type="primary")
 
     if next_clicked:
         if not is_valid:
