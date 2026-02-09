@@ -91,6 +91,7 @@ def init_state() -> None:
         "ratings": {},
         "saved_csv_path": "",
         "saved_rows": 0,
+        "finish_confirm_visible": False,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -109,6 +110,7 @@ def start_session(
     st.session_state.ratings = {}
     st.session_state.saved_csv_path = ""
     st.session_state.saved_rows = 0
+    st.session_state.finish_confirm_visible = False
     st.rerun()
 
 
@@ -168,6 +170,58 @@ def save_results_csv() -> None:
     st.session_state.phase = "finished"
     st.session_state.saved_csv_path = str(output_path)
     st.session_state.saved_rows = len(dataframe)
+    st.session_state.finish_confirm_visible = False
+
+
+def request_finish_confirmation() -> None:
+    st.session_state.finish_confirm_visible = True
+    st.rerun()
+
+
+def _render_finish_confirmation_inline() -> None:
+    st.warning("Are you sure you want to finish and save current ratings?")
+    confirm_col, cancel_col = st.columns(2)
+    with confirm_col:
+        if st.button("Yes, finish and save", type="primary", key="confirm_finish_inline"):
+            save_results_csv()
+            st.rerun()
+    with cancel_col:
+        _, cancel_right_col = st.columns([0.52, 0.48])
+        with cancel_right_col:
+            if st.button("Cancel", key="cancel_finish_inline", use_container_width=True):
+                st.session_state.finish_confirm_visible = False
+                st.rerun()
+
+
+if hasattr(st, "dialog"):
+
+    @st.dialog("Confirm finish")
+    def render_finish_confirmation_dialog() -> None:
+        st.write("Are you sure you want to finish and save current ratings?")
+        confirm_col, cancel_col = st.columns(2)
+        with confirm_col:
+            if st.button(
+                "Yes, finish and save",
+                type="primary",
+                key="confirm_finish_dialog",
+            ):
+                save_results_csv()
+                st.rerun()
+        with cancel_col:
+            _, cancel_right_col = st.columns([0.52, 0.48])
+            with cancel_right_col:
+                if st.button(
+                    "Cancel",
+                    key="cancel_finish_dialog",
+                    use_container_width=True,
+                ):
+                    st.session_state.finish_confirm_visible = False
+                    st.rerun()
+
+else:
+
+    def render_finish_confirmation_dialog() -> None:
+        _render_finish_confirmation_inline()
 
 
 def reset_session() -> None:
@@ -309,13 +363,14 @@ def render_rating_screen() -> None:
         return
 
     current_index = st.session_state.current_index
+    if st.session_state.finish_confirm_visible:
+        render_finish_confirmation_dialog()
 
     if current_index >= total:
         st.success("No more images")
         st.info(f"Rated images: {len(st.session_state.ratings)} of {total}")
-        if st.button("Finish and save CSV", type="primary"):
-            save_results_csv()
-            st.rerun()
+        if st.button("Finish and save CSV", type="primary", key="finish_all_btn"):
+            request_finish_confirmation()
         return
 
     current_path = images[current_index]
@@ -350,6 +405,7 @@ def render_rating_screen() -> None:
             next_clicked = st.button("Next", type="primary")
 
     if next_clicked:
+        st.session_state.finish_confirm_visible = False
         if not is_valid:
             st.error(error_message)
         else:
@@ -366,8 +422,7 @@ def render_rating_screen() -> None:
             st.rerun()
 
     if finish_clicked:
-        save_results_csv()
-        st.rerun()
+        request_finish_confirmation()
 
 
 def render_finished_screen() -> None:
