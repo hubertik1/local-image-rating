@@ -271,7 +271,6 @@ def reset_session() -> None:
 
 def format_quality_option(value: str) -> str:
     labels = {
-        "": "-- select a score --",
         "1": "1 (good image)",
         "0.5": "0.5 (partially good image)",
         "0": "0 (reject image)",
@@ -376,10 +375,12 @@ def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]
 
 
 def render_quality_form(current_index: int) -> tuple[bool, dict[str, str], str]:
-    quality_score = st.selectbox(
+    quality_score = st.radio(
         "Quality score",
-        options=["", "1", "0.5", "0"],
+        options=["1", "0.5", "0"],
         format_func=format_quality_option,
+        index=None,
+        horizontal=True,
         key=f"quality_score_{current_index}",
     )
     comment = st.text_area(
@@ -387,7 +388,7 @@ def render_quality_form(current_index: int) -> tuple[bool, dict[str, str], str]:
         key=f"quality_comment_{current_index}",
     )
 
-    if quality_score == "":
+    if quality_score is None:
         return False, {"quality_score": "", "comment": comment}, "Select a quality score."
     return True, {"quality_score": quality_score, "comment": comment}, ""
 
@@ -409,8 +410,16 @@ def hydrate_form_state_from_saved_rating(current_path: Path, current_index: int)
         saved_score = saved_record.get("quality_score")
         saved_comment = saved_record.get("comment", "")
 
-        if quality_key not in st.session_state and saved_score in {"", "1", "0.5", "0"}:
-            st.session_state[quality_key] = saved_score
+        normalized_score: str | None = None
+        if saved_score in {"1", 1, 1.0}:
+            normalized_score = "1"
+        elif saved_score in {"0.5", 0.5}:
+            normalized_score = "0.5"
+        elif saved_score in {"0", 0, 0.0}:
+            normalized_score = "0"
+
+        if quality_key not in st.session_state and normalized_score is not None:
+            st.session_state[quality_key] = normalized_score
         if comment_key not in st.session_state and isinstance(saved_comment, str):
             st.session_state[comment_key] = saved_comment
 
