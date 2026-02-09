@@ -24,7 +24,10 @@ DEFAULT_EMOTIONS = [
     "neutral",
     "nurturant love",
     "sadness",
+    "happiness",
+    "suprise",
 ]
+DEFAULT_UNCHECKED_EMOTIONS = {"happiness", "suprise"}
 OPTION_EMOTIONS_LABEL = "Emotion-based rating"
 OPTION_QUALITY_LABEL = "Quality rating"
 
@@ -308,7 +311,12 @@ def render_setup_screen() -> None:
         if selected_option_label == OPTION_EMOTIONS_LABEL:
             st.write("Choose emotions:")
             for idx, emotion in enumerate(DEFAULT_EMOTIONS):
-                if st.checkbox(emotion, value=True, key=f"draft_emotion_{idx}"):
+                is_checked_by_default = emotion not in DEFAULT_UNCHECKED_EMOTIONS
+                if st.checkbox(
+                    emotion,
+                    value=is_checked_by_default,
+                    key=f"draft_emotion_{idx}",
+                ):
                     selected_emotions.append(emotion)
 
     if start_clicked:
