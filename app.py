@@ -421,7 +421,7 @@ def format_quality_option(value: str) -> str:
 
 def render_setup_screen() -> None:
     sync_keyboard_shortcuts(False)
-    st.title("Local image rating app")
+    st.title("Image Rating App")
 
     image_paths = get_image_paths()
     if not image_paths:
@@ -755,7 +755,7 @@ def render_finished_screen() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Image rating", layout="wide")
+    st.set_page_config(page_title="Image Rating App", layout="wide")
     inject_custom_button_styles()
     ensure_dirs()
     init_state()
