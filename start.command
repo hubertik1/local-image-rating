@@ -2,4 +2,19 @@
 set -e
 
 cd "$(dirname "$0")"
-./start.sh
+
+if [ ! -d "venv" ]; then
+  python3 -m venv venv
+fi
+
+mkdir -p new_images output
+
+PYTHON_BIN="venv/bin/python"
+if [ ! -x "$PYTHON_BIN" ]; then
+  echo "Python interpreter not found in venv. Check your Python 3 installation."
+  exit 1
+fi
+
+"$PYTHON_BIN" -m pip install --upgrade pip
+"$PYTHON_BIN" -m pip install -r requirements.txt
+"$PYTHON_BIN" -m streamlit run app.py
