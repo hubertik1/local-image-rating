@@ -520,6 +520,7 @@ def render_rating_screen() -> None:
 
 
 def render_finished_screen() -> None:
+    st.markdown("<div style='padding-top: 0.8rem;'></div>", unsafe_allow_html=True)
     st.success("Results saved.")
     st.write(f"Number of saved ratings: {st.session_state.saved_rows}")
     st.write(f"CSV file: `{st.session_state.saved_csv_path}`")
