@@ -660,36 +660,35 @@ def render_rating_screen() -> None:
             st.session_state.rating_show_labels = st.session_state.get("show_labels", False)
         show_labels_now = bool(st.session_state.get("rating_show_labels", False))
         image_label = get_image_label(current_path)
+        content_col, _ = st.columns([10, 0.05], gap="small")
+        with content_col:
+            header_image_col, header_label_col = st.columns([0.64, 0.36], gap="small")
+            with header_image_col:
+                st.subheader(f"Image {current_index + 1} of {total}")
+            with header_label_col:
+                if show_labels_now and image_label:
+                    st.markdown(
+                        (
+                            "<div style='font-size:1.5rem; font-weight:600; "
+                            "text-align:right; line-height:1.2; margin-top:1.2rem;'>"
+                            f"Label: <span style='color:#1d4ed8;'>{html.escape(image_label)}</span></div>"
+                        ),
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    st.markdown("&nbsp;", unsafe_allow_html=True)
 
-        header_image_col, header_label_col = st.columns([0.64, 0.36], gap="small")
-        with header_image_col:
-            st.subheader(f"Image {current_index + 1} of {total}")
-        with header_label_col:
-            if show_labels_now and image_label:
-                st.markdown(
-                    (
-                        "<div style='font-size:1.5rem; font-weight:600; "
-                        "text-align:right; line-height:1.2; margin-top:1.2rem;'>"
-                        f"Label: <span style='color:#1d4ed8;'>{html.escape(image_label)}</span></div>"
-                    ),
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.markdown("&nbsp;", unsafe_allow_html=True)
+            file_col, show_labels_col = st.columns([1.0, 0.20], gap="small")
+            with file_col:
+                st.caption(f"File name: `{current_path.name}`")
+            with show_labels_col:
+                st.checkbox("Show labels", key="rating_show_labels")
 
-        file_col, show_labels_col = st.columns([1.0, 0.20], gap="small")
-        with file_col:
-            st.caption(f"File name: `{current_path.name}`")
-        with show_labels_col:
-            st.checkbox("Show labels", key="rating_show_labels")
-
-        st.session_state.show_labels = bool(st.session_state.get("rating_show_labels", False))
-        if current_path.exists():
-            image_col, _ = st.columns([10, 0.05], gap="small")
-            with image_col:
+            st.session_state.show_labels = bool(st.session_state.get("rating_show_labels", False))
+            if current_path.exists():
                 st.image(str(current_path), use_container_width=True)
-        else:
-            st.error(f"Cannot load image: {current_path.name}")
+            else:
+                st.error(f"Cannot load image: {current_path.name}")
 
     with right_col:
         st.markdown(
