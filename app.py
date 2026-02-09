@@ -12,14 +12,18 @@ IMAGE_DIR = Path("new_images")
 OUTPUT_DIR = Path("output")
 SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 DEFAULT_EMOTIONS = [
-    "radość",
-    "smutek",
-    "złość",
-    "strach",
-    "zaskoczenie",
-    "wstręt",
-    "spokój",
-    "ekscytacja",
+    "amusement",
+    "anger",
+    "attachment love",
+    "awe",
+    "craving",
+    "disgust",
+    "excitement",
+    "fear",
+    "joy",
+    "neutral",
+    "nurturant love",
+    "sadness",
 ]
 OPTION_EMOTIONS_LABEL = "Ocena na emocjach"
 OPTION_QUALITY_LABEL = "Ocena jakości 1 / 0.5 / 0 + komentarz"
@@ -191,7 +195,7 @@ def render_setup_screen() -> None:
     st.text_input("Imię", key="draft_name")
     selected_option_label = st.radio(
         "Wybór testu",
-        options=[OPTION_EMOTIONS_LABEL, OPTION_QUALITY_LABEL],
+        options=[OPTION_QUALITY_LABEL, OPTION_EMOTIONS_LABEL],
         key="draft_option",
     )
 
@@ -199,7 +203,7 @@ def render_setup_screen() -> None:
     if selected_option_label == OPTION_EMOTIONS_LABEL:
         st.write("Wybierz emocje:")
         for idx, emotion in enumerate(DEFAULT_EMOTIONS):
-            if st.checkbox(emotion, key=f"draft_emotion_{idx}"):
+            if st.checkbox(emotion, value=True, key=f"draft_emotion_{idx}"):
                 selected_emotions.append(emotion)
 
     start_disabled = len(image_paths) == 0
