@@ -292,22 +292,26 @@ def render_setup_screen() -> None:
     if not image_paths:
         st.warning("No images found in new_images")
 
-    st.text_input("Name", key="draft_name")
-    selected_option_label = st.radio(
-        "Choose test",
-        options=[OPTION_QUALITY_LABEL, OPTION_EMOTIONS_LABEL],
-        key="draft_option",
-    )
+    left_col, right_col = st.columns([1, 1], gap="large")
+    start_disabled = len(image_paths) == 0
+    with left_col:
+        st.text_input("Name", key="draft_name")
+        selected_option_label = st.radio(
+            "Choose test",
+            options=[OPTION_QUALITY_LABEL, OPTION_EMOTIONS_LABEL],
+            key="draft_option",
+        )
+        start_clicked = st.button("Start", type="primary", disabled=start_disabled)
 
     selected_emotions: list[str] = []
-    if selected_option_label == OPTION_EMOTIONS_LABEL:
-        st.write("Choose emotions:")
-        for idx, emotion in enumerate(DEFAULT_EMOTIONS):
-            if st.checkbox(emotion, value=True, key=f"draft_emotion_{idx}"):
-                selected_emotions.append(emotion)
+    with right_col:
+        if selected_option_label == OPTION_EMOTIONS_LABEL:
+            st.write("Choose emotions:")
+            for idx, emotion in enumerate(DEFAULT_EMOTIONS):
+                if st.checkbox(emotion, value=True, key=f"draft_emotion_{idx}"):
+                    selected_emotions.append(emotion)
 
-    start_disabled = len(image_paths) == 0
-    if st.button("Start", type="primary", disabled=start_disabled):
+    if start_clicked:
         errors: list[str] = []
         user_name = st.session_state.get("draft_name", "").strip()
         test_option = (
