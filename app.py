@@ -25,8 +25,8 @@ DEFAULT_EMOTIONS = [
     "nurturant love",
     "sadness",
 ]
-OPTION_EMOTIONS_LABEL = "Ocena na emocjach"
-OPTION_QUALITY_LABEL = "Ocena jakości 1 / 0.5 / 0 + komentarz"
+OPTION_EMOTIONS_LABEL = "Emotion-based rating"
+OPTION_QUALITY_LABEL = "Quality rating"
 
 
 def ensure_dirs() -> None:
@@ -177,37 +177,37 @@ def reset_session() -> None:
 
 def format_quality_option(value: str) -> str:
     labels = {
-        "": "-- wybierz ocenę --",
-        "1": "1 (zdjęcie dobre)",
-        "0.5": "0.5 (zdjęcie nie do końca dobre)",
-        "0": "0 (zdjęcie do odrzucenia)",
+        "": "-- select a score --",
+        "1": "1 (good image)",
+        "0.5": "0.5 (partially good image)",
+        "0": "0 (reject image)",
     }
     return labels.get(value, value)
 
 
 def render_setup_screen() -> None:
-    st.title("Lokalna ocena obrazów")
+    st.title("Local image rating app")
 
     image_paths = get_image_paths()
     if not image_paths:
-        st.warning("Brak obrazów w new_images")
+        st.warning("No images found in new_images")
 
-    st.text_input("Imię", key="draft_name")
+    st.text_input("Name", key="draft_name")
     selected_option_label = st.radio(
-        "Wybór testu",
+        "Choose test",
         options=[OPTION_QUALITY_LABEL, OPTION_EMOTIONS_LABEL],
         key="draft_option",
     )
 
     selected_emotions: list[str] = []
     if selected_option_label == OPTION_EMOTIONS_LABEL:
-        st.write("Wybierz emocje:")
+        st.write("Choose emotions:")
         for idx, emotion in enumerate(DEFAULT_EMOTIONS):
             if st.checkbox(emotion, value=True, key=f"draft_emotion_{idx}"):
                 selected_emotions.append(emotion)
 
     start_disabled = len(image_paths) == 0
-    if st.button("Rozpocznij", type="primary", disabled=start_disabled):
+    if st.button("Start", type="primary", disabled=start_disabled):
         errors: list[str] = []
         user_name = st.session_state.get("draft_name", "").strip()
         test_option = (
@@ -217,11 +217,11 @@ def render_setup_screen() -> None:
         )
 
         if not user_name:
-            errors.append("Imię jest wymagane.")
+            errors.append("Name is required.")
         if test_option == "emotions" and not selected_emotions:
-            errors.append("Wybierz co najmniej jedną emocję.")
+            errors.append("Select at least one emotion.")
         if not image_paths:
-            errors.append("Brak obrazów w new_images.")
+            errors.append("No images found in new_images.")
 
         if errors:
             for error in errors:
@@ -231,7 +231,7 @@ def render_setup_screen() -> None:
 
 
 def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]:
-    st.write("Ocena emocji (1-7):")
+    st.write("Emotion rating (1-7):")
     selected_emotions: list[str] = st.session_state.selected_emotions
     values: dict[str, int] = {}
 
@@ -247,24 +247,24 @@ def render_emotions_form(current_index: int) -> tuple[bool, dict[str, int], str]
         )
 
     is_valid = len(values) == len(selected_emotions)
-    error = "" if is_valid else "Ustaw ocenę dla wszystkich emocji."
+    error = "" if is_valid else "Set a score for all emotions."
     return is_valid, values, error
 
 
 def render_quality_form(current_index: int) -> tuple[bool, dict[str, str], str]:
     quality_score = st.selectbox(
-        "Ocena jakości",
+        "Quality score",
         options=["", "1", "0.5", "0"],
         format_func=format_quality_option,
         key=f"quality_score_{current_index}",
     )
     comment = st.text_area(
-        "Komentarz (opcjonalnie)",
+        "Comment (optional)",
         key=f"quality_comment_{current_index}",
     )
 
     if quality_score == "":
-        return False, {"quality_score": "", "comment": comment}, "Wybierz ocenę jakości."
+        return False, {"quality_score": "", "comment": comment}, "Select a quality score."
     return True, {"quality_score": quality_score, "comment": comment}, ""
 
 
@@ -273,29 +273,29 @@ def render_rating_screen() -> None:
     total = len(images)
 
     if total == 0:
-        st.warning("Brak obrazów do oceny. Wróć do ekranu startowego.")
-        if st.button("Nowa sesja"):
+        st.warning("No images to rate. Return to the start screen.")
+        if st.button("New session"):
             reset_session()
         return
 
     current_index = st.session_state.current_index
 
     if current_index >= total:
-        st.success("To już wszystkie obrazy")
-        st.info(f"Ocenione obrazy: {len(st.session_state.ratings)} z {total}")
-        if st.button("Zakończ i zapisz CSV", type="primary"):
+        st.success("No more images")
+        st.info(f"Rated images: {len(st.session_state.ratings)} of {total}")
+        if st.button("Finish and save CSV", type="primary"):
             save_results_csv()
             st.rerun()
         return
 
     current_path = images[current_index]
-    st.subheader(f"Obraz {current_index + 1} z {total}")
-    st.caption(f"Nazwa pliku: `{current_path.name}`")
+    st.subheader(f"Image {current_index + 1} of {total}")
+    st.caption(f"File name: `{current_path.name}`")
 
     if current_path.exists():
         st.image(str(current_path), use_container_width=True)
     else:
-        st.error(f"Nie można wczytać obrazu: {current_path.name}")
+        st.error(f"Cannot load image: {current_path.name}")
 
     if st.session_state.test_option == "emotions":
         is_valid, payload, error_message = render_emotions_form(current_index)
@@ -306,7 +306,7 @@ def render_rating_screen() -> None:
     with col_next:
         next_clicked = st.button("Next", type="primary")
     with col_finish:
-        finish_clicked = st.button("Zakończ")
+        finish_clicked = st.button("Finish")
 
     if next_clicked:
         if not is_valid:
@@ -330,15 +330,15 @@ def render_rating_screen() -> None:
 
 
 def render_finished_screen() -> None:
-    st.success("Wyniki zostały zapisane.")
-    st.write(f"Liczba zapisanych ocen: {st.session_state.saved_rows}")
-    st.write(f"Plik CSV: `{st.session_state.saved_csv_path}`")
-    if st.button("Nowa sesja", type="primary"):
+    st.success("Results saved.")
+    st.write(f"Number of saved ratings: {st.session_state.saved_rows}")
+    st.write(f"CSV file: `{st.session_state.saved_csv_path}`")
+    if st.button("New session", type="primary"):
         reset_session()
 
 
 def main() -> None:
-    st.set_page_config(page_title="Ocena obrazów", layout="wide")
+    st.set_page_config(page_title="Image rating", layout="wide")
     ensure_dirs()
     init_state()
 

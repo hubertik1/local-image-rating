@@ -11,7 +11,7 @@ if not exist "venv\Scripts\python.exe" (
 )
 
 if not exist "venv\Scripts\python.exe" (
-    echo Nie udalo sie utworzyc srodowiska venv.
+    echo Failed to create the virtual environment.
     pause
     exit /b 1
 )
@@ -29,6 +29,6 @@ call "venv\Scripts\python.exe" -m streamlit run app.py
 goto :eof
 
 :error
-echo Wystapil blad podczas instalacji zaleznosci lub uruchamiania aplikacji.
+echo An error occurred while installing dependencies or starting the app.
 pause
 exit /b 1

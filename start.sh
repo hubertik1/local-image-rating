@@ -11,7 +11,7 @@ mkdir -p new_images output
 
 PYTHON_BIN="venv/bin/python"
 if [ ! -x "$PYTHON_BIN" ]; then
-  echo "Brak interpretera w venv. Sprawdz instalacje Python 3."
+  echo "Python interpreter not found in venv. Check your Python 3 installation."
   exit 1
 fi
 
