@@ -11,6 +11,7 @@ def init_state() -> None:
         "show_labels": False,
         "selected_emotions": [],
         "images": [],
+        "image_groups": [],
         "current_index": 0,
         "ratings": {},
         "draft_ratings": {},
@@ -30,6 +31,7 @@ def start_session(
     selected_emotions: list[str],
     images: list[Path],
     show_labels: bool,
+    image_groups: list[list[Path]] | None = None,
 ) -> None:
     st.session_state.phase = "rating"
     st.session_state.name = name
@@ -38,6 +40,9 @@ def start_session(
     st.session_state.rating_show_labels = show_labels
     st.session_state.selected_emotions = selected_emotions
     st.session_state.images = [str(path) for path in images]
+    st.session_state.image_groups = [
+        [str(path) for path in group] for group in (image_groups or [])
+    ]
     st.session_state.current_index = 0
     st.session_state.ratings = {}
     st.session_state.draft_ratings = {}

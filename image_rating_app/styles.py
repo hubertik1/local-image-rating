@@ -8,13 +8,23 @@ def inject_custom_button_styles() -> None:
         <style>
         /* Reduce top whitespace across all Streamlit views */
         [data-testid="stAppViewContainer"] > .main {
-            padding-top: calc(1.7rem) !important;
+            padding-top: 0 !important;
         }
         .block-container {
-            padding-top: calc(1.7rem) !important;
+            padding-top: 0.45rem !important;
             max-width: 1700px !important;
             margin-left: auto !important;
             margin-right: auto !important;
+        }
+        header[data-testid="stHeader"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        .stDeployButton,
+        #MainMenu {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
         }
 
         /* Finish button: red text + red border */

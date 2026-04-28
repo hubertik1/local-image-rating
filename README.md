@@ -20,6 +20,19 @@ You can organize images in subfolders, for example:
 
 Then you can enable `Show labels` in the app to display the folder name as a label.
 
+### 3-image quality mode
+The app also supports rating images in sets of up to 3. Add files with the same
+base name and suffixes `_1`, `_2`, `_3`, for example:
+
+- `new_images/image_1.jpg`
+- `new_images/image_2.jpg`
+- `new_images/image_3.jpg`
+
+Choose `3-image quality rating` to see the available images side by side. Each image
+gets its own quality score (`1`, `0.5`, `0`) and optional comment. The CSV output stores
+one row per set with columns `image_name_1`, `quality_score_1`, `comment_1`, and so on.
+If a set has only one or two files, the app still shows and saves the available images.
+
 ### Step-by-step usage
 Repository URL: `https://github.com/hubertik1/local-image-rating`
 
@@ -82,6 +95,20 @@ Mozesz ulozyc obrazy w podfolderach, np.:
 - `new_images/awe/...`
 
 Wtedy po wlaczeniu `Show labels` aplikacja pokazuje nazwe folderu jako label.
+
+### Tryb jakosci dla 3 obrazow
+Aplikacja obsluguje tez ocenianie kompletow do 3 obrazow. Dodaj pliki z ta sama
+nazwa bazowa i koncowkami `_1`, `_2`, `_3`, na przyklad:
+
+- `new_images/image_1.jpg`
+- `new_images/image_2.jpg`
+- `new_images/image_3.jpg`
+
+Wybierz `3-image quality rating`, aby zobaczyc dostepne obrazy obok siebie. Kazdy
+obraz ma wlasny wybor jakosci (`1`, `0.5`, `0`) i opcjonalny komentarz. CSV zapisuje
+jeden wiersz na komplet z kolumnami `image_name_1`, `quality_score_1`, `comment_1` itd.
+Jesli komplet ma tylko jeden albo dwa pliki, aplikacja nadal pokazuje i zapisuje
+dostepne obrazy.
 
 ### Uzycie krok po kroku
 URL repozytorium: `https://github.com/hubertik1/local-image-rating`
