@@ -35,13 +35,15 @@ If a set has only one or two files, the app still shows and saves the available 
 
 ### Choose the best of 3 mode
 In `Choose the best of 3`, all available images are shuffled once when the session
-starts and split into sets of up to 3. Click an image to save the choice and
-immediately continue to the next set. Use `Previous` to revisit a set
+starts and split into sets of up to 3. Click an image or press `1`, `2`, or `3`
+for the corresponding image from the left to save the choice and immediately
+continue to the next set. Use `Previous` to revisit a set
 and replace its selection.
 
-The CSV contains one row per chosen image and only the columns `name`,
-`test_option`, and `image_name`. It does not contain the other images from a set.
-The file name starts with `results_best_of_three_`.
+The CSV contains one row for every dataset image. Its columns are `name`,
+`test_option`, `image_name`, and `selected`. The `selected` value is `1` for a
+chosen image and `0` for every other image. The file name starts with
+`results_best_of_three_`.
 
 ### Step-by-step usage
 Repository URL: `https://github.com/hubertik1/local-image-rating`
@@ -127,12 +129,14 @@ dostepne obrazy.
 ### Tryb wyboru najlepszego z 3
 W trybie `Choose the best of 3` wszystkie dostepne obrazy sa tasowane jeden raz
 przy rozpoczeciu sesji i dzielone na zestawy po maksymalnie 3. Kliknij wybrany
-obraz, aby zapisac wybor i od razu przejsc dalej. Przycisk
+obraz albo nacisnij `1`, `2` lub `3` dla odpowiedniej pozycji od lewej, aby
+zapisac wybor i od razu przejsc dalej. Przycisk
 `Previous` pozwala wrocic do zestawu i zmienic wybor.
 
-CSV zawiera jeden wiersz na wybrany obraz i tylko kolumny `name`, `test_option`
-oraz `image_name`. Pozostale obrazy z zestawu nie sa zapisywane. Nazwa pliku
-zaczyna sie od `results_best_of_three_`.
+CSV zawiera jeden wiersz dla kazdego obrazu z datasetu oraz kolumny `name`,
+`test_option`, `image_name` i `selected`. Wartosc `selected` wynosi `1` dla
+wybranego obrazu i `0` dla pozostalych. Nazwa pliku zaczyna sie od
+`results_best_of_three_`.
 
 ### Uzycie krok po kroku
 URL repozytorium: `https://github.com/hubertik1/local-image-rating`

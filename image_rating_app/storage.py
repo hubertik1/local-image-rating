@@ -178,26 +178,25 @@ def build_results_dataframe() -> pd.DataFrame:
     )
 
     if test_option == TEST_OPTION_BEST_OF_THREE:
-        for group_index, _image_group in enumerate(image_groups):
-            group_key = get_selection_group_key(group_index)
-            if group_key not in ratings:
-                continue
+        selected_image_keys = {
+            record.get("image_key", "")
+            for group_index in range(len(image_groups))
+            if (record := ratings.get(get_selection_group_key(group_index)))
+        }
 
-            selected_image_name = ratings[group_key].get("image_name", "")
-            if not selected_image_name:
-                continue
-
+        for image_path in images:
             rows.append(
                 {
                     "name": st.session_state.name,
                     "test_option": test_option,
-                    "image_name": selected_image_name,
+                    "image_name": image_path.name,
+                    "selected": int(get_image_key(image_path) in selected_image_keys),
                 }
             )
 
         return pd.DataFrame(
             rows,
-            columns=["name", "test_option", "image_name"],
+            columns=["name", "test_option", "image_name", "selected"],
         )
 
     if test_option == TEST_OPTION_TRIPLET_QUALITY:

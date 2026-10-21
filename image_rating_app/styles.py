@@ -114,6 +114,8 @@ def sync_keyboard_shortcuts(enabled: bool) -> None:
         (() => {{
             const doc = window.parent.document;
             doc.__ratingHotkeysEnabled = {enabled_js};
+            // Disable the legacy custom 1/2/3 handler after a hot reload.
+            doc.__imageChoiceHotkeysEnabled = false;
 
             if (doc.__ratingHotkeysBound) {{
                 return;

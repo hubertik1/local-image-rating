@@ -410,7 +410,9 @@ def render_best_of_three_screen() -> None:
     selected_path: Path | None = None
 
     st.subheader(f"Choose the best image — set {current_index + 1} of {total}")
-    st.caption("Click an image to select it and continue automatically.")
+    st.caption(
+        "Click an image or press 1, 2, or 3 to select it and continue automatically."
+    )
 
     columns = st.columns(TRIPLET_IMAGE_COUNT, gap="medium")
     for image_index, image_path in enumerate(current_group):
@@ -418,7 +420,7 @@ def render_best_of_three_screen() -> None:
         is_selected = image_key == selected_image_key
 
         with columns[image_index]:
-            st.caption(f"File name: `{image_path.name}`")
+            st.caption(f"{image_index + 1} — File name: `{image_path.name}`")
             container_state = "selected_" if is_selected else ""
             with st.container(
                 key=(
@@ -435,6 +437,7 @@ def render_best_of_three_screen() -> None:
                     f"Choose {image_path.name}",
                     key=f"best_of_three_choice_{current_index}_{image_index}",
                     disabled=not image_path.exists(),
+                    shortcut=str(image_index + 1),
                     width="stretch",
                 ):
                     selected_path = image_path
