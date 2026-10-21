@@ -12,7 +12,10 @@ def inject_custom_button_styles() -> None:
         }
         .block-container {
             padding-top: 0.45rem !important;
-            max-width: 1700px !important;
+            max-width: none !important;
+            width: 100% !important;
+            padding-left: clamp(1rem, 2vw, 3rem) !important;
+            padding-right: clamp(1rem, 2vw, 3rem) !important;
             margin-left: auto !important;
             margin-right: auto !important;
         }

@@ -38,9 +38,12 @@ In `Choose the best of 3`, all available images are shuffled once when the sessi
 starts and split into sets of up to 3. Click an image or press `1`, `2`, or `3`
 for the corresponding image from the left to save the choice and immediately
 continue to the next set. Use `Previous` to revisit a set
-and replace its selection.
+and replace its selection. The image columns expand to use the available screen
+width. Click `Finish and save CSV` at any time, then confirm, to save your completed
+choices without reviewing all sets.
 
-The CSV contains one row for every dataset image. Its columns are `name`,
+The CSV contains one row for every image in a set with a saved choice. Unreviewed
+sets are omitted when finishing early. Its columns are `name`,
 `test_option`, `image_name`, and `selected`. The `selected` value is `1` for a
 chosen image and `0` for every other image. The file name starts with
 `results_best_of_three_`.
@@ -131,9 +134,12 @@ W trybie `Choose the best of 3` wszystkie dostepne obrazy sa tasowane jeden raz
 przy rozpoczeciu sesji i dzielone na zestawy po maksymalnie 3. Kliknij wybrany
 obraz albo nacisnij `1`, `2` lub `3` dla odpowiedniej pozycji od lewej, aby
 zapisac wybor i od razu przejsc dalej. Przycisk
-`Previous` pozwala wrocic do zestawu i zmienic wybor.
+`Previous` pozwala wrocic do zestawu i zmienic wybor. Kolumny obrazow wykorzystuja
+dostepna szerokosc ekranu. Kliknij `Finish and save CSV` w dowolnym momencie
+i potwierdz, aby zapisac dokonane wybory bez oceniania wszystkich zestawow.
 
-CSV zawiera jeden wiersz dla kazdego obrazu z datasetu oraz kolumny `name`,
+CSV zawiera jeden wiersz dla kazdego obrazu z zestawu z zapisanym wyborem.
+Przy wczesniejszym zakonczeniu nieocenione zestawy sa pomijane. Kolumny to `name`,
 `test_option`, `image_name` i `selected`. Wartosc `selected` wynosi `1` dla
 wybranego obrazu i `0` dla pozostalych. Nazwa pliku zaczyna sie od
 `results_best_of_three_`.

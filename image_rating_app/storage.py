@@ -178,6 +178,12 @@ def build_results_dataframe() -> pd.DataFrame:
     )
 
     if test_option == TEST_OPTION_BEST_OF_THREE:
+        reviewed_image_keys = {
+            get_image_key(image_path)
+            for group_index, image_group in enumerate(image_groups)
+            if ratings.get(get_selection_group_key(group_index))
+            for image_path in image_group
+        }
         selected_image_keys = {
             record.get("image_key", "")
             for group_index in range(len(image_groups))
@@ -185,12 +191,15 @@ def build_results_dataframe() -> pd.DataFrame:
         }
 
         for image_path in images:
+            image_key = get_image_key(image_path)
+            if image_key not in reviewed_image_keys:
+                continue
             rows.append(
                 {
                     "name": st.session_state.name,
                     "test_option": test_option,
                     "image_name": image_path.name,
-                    "selected": int(get_image_key(image_path) in selected_image_keys),
+                    "selected": int(image_key in selected_image_keys),
                 }
             )
 

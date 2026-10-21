@@ -409,9 +409,15 @@ def render_best_of_three_screen() -> None:
     selected_image_key = saved_record.get("image_key", "")
     selected_path: Path | None = None
 
-    st.subheader(f"Choose the best image — set {current_index + 1} of {total}")
+    heading_col, finish_col = st.columns([4, 1], vertical_alignment="center")
+    with heading_col:
+        st.subheader(f"Choose the best image — set {current_index + 1} of {total}")
+    with finish_col:
+        if st.button("Finish and save CSV", key="finish_btn", width="stretch"):
+            request_finish_confirmation()
     st.caption(
-        "Click an image or press 1, 2, or 3 to select it and continue automatically."
+        "Click an image or press 1, 2, or 3 to select it and continue automatically. "
+        "Finish at any time to save your completed choices."
     )
 
     columns = st.columns(TRIPLET_IMAGE_COUNT, gap="medium")
@@ -436,7 +442,10 @@ def render_best_of_three_screen() -> None:
                 if st.button(
                     f"Choose {image_path.name}",
                     key=f"best_of_three_choice_{current_index}_{image_index}",
-                    disabled=not image_path.exists(),
+                    disabled=(
+                        not image_path.exists()
+                        or st.session_state.finish_confirm_visible
+                    ),
                     shortcut=str(image_index + 1),
                     width="stretch",
                 ):
