@@ -5,6 +5,7 @@ import streamlit as st
 
 from ..constants import (
     QUALITY_SCORE_OPTIONS,
+    TEST_OPTION_BEST_OF_THREE,
     TEST_OPTION_EMOTIONS,
     TEST_OPTION_TRIPLET_QUALITY,
     TRIPLET_IMAGE_COUNT,
@@ -19,6 +20,7 @@ from ..state import reset_session
 from ..storage import (
     get_image_key,
     get_image_label,
+    get_selection_group_key,
     get_triplet_group_key,
     parse_triplet_member,
 )
@@ -364,12 +366,108 @@ def render_triplet_rating_screen() -> None:
         request_finish_confirmation()
 
 
+def render_best_of_three_screen() -> None:
+    image_groups = [
+        [Path(path) for path in group]
+        for group in st.session_state.get("image_groups", [])
+    ]
+    total = len(image_groups)
+
+    if total == 0:
+        sync_keyboard_shortcuts(False)
+        st.warning("No image sets to choose from. Return to the start screen.")
+        if st.button("New session"):
+            reset_session()
+        return
+
+    current_index = st.session_state.current_index
+    if st.session_state.finish_confirm_visible:
+        render_finish_confirmation_dialog()
+
+    if current_index >= total:
+        sync_keyboard_shortcuts(False)
+        st.success("All image sets have a selection.")
+        st.info(f"Selected images: {len(st.session_state.ratings)} of {total}")
+
+        previous_col, finish_col = st.columns([1, 1])
+        with previous_col:
+            if st.button("Previous", key="previous_btn", width="stretch"):
+                navigate_to(PAGE_RATING, total - 1)
+        with finish_col:
+            if st.button(
+                "Finish and save CSV",
+                type="primary",
+                key="finish_all_btn",
+                width="stretch",
+            ):
+                request_finish_confirmation()
+        return
+
+    current_group = image_groups[current_index]
+    group_key = get_selection_group_key(current_index)
+    saved_record = st.session_state.ratings.get(group_key, {})
+    selected_image_key = saved_record.get("image_key", "")
+    selected_path: Path | None = None
+
+    st.subheader(f"Choose the best image — set {current_index + 1} of {total}")
+    st.caption("Click an image to select it and continue automatically.")
+
+    columns = st.columns(TRIPLET_IMAGE_COUNT, gap="medium")
+    for image_index, image_path in enumerate(current_group):
+        image_key = get_image_key(image_path)
+        is_selected = image_key == selected_image_key
+
+        with columns[image_index]:
+            st.caption(f"File name: `{image_path.name}`")
+            container_state = "selected_" if is_selected else ""
+            with st.container(
+                key=(
+                    f"clickable_image_{container_state}"
+                    f"{current_index}_{image_index}"
+                )
+            ):
+                if image_path.exists():
+                    st.image(str(image_path), width="stretch")
+                else:
+                    st.error(f"Cannot load image: {image_path.name}")
+
+                if st.button(
+                    f"Choose {image_path.name}",
+                    key=f"best_of_three_choice_{current_index}_{image_index}",
+                    disabled=not image_path.exists(),
+                    width="stretch",
+                ):
+                    selected_path = image_path
+
+            if is_selected:
+                st.caption("✓ Selected")
+
+    if current_index > 0 and st.button(
+        "Previous",
+        key="previous_btn",
+    ):
+        navigate_to(PAGE_RATING, current_index - 1)
+
+    sync_keyboard_shortcuts(False)
+
+    if selected_path is not None:
+        st.session_state.ratings[group_key] = {
+            "image_key": get_image_key(selected_path),
+            "image_name": selected_path.name,
+        }
+        navigate_to(PAGE_RATING, current_index + 1)
+
+
 def render_rating_screen() -> None:
     if st.button("← Back to setup", key="back_to_setup_btn"):
         navigate_to(PAGE_SETUP)
 
     if st.session_state.test_option == TEST_OPTION_TRIPLET_QUALITY:
         render_triplet_rating_screen()
+        return
+
+    if st.session_state.test_option == TEST_OPTION_BEST_OF_THREE:
+        render_best_of_three_screen()
         return
 
     images = [Path(path) for path in st.session_state.images]

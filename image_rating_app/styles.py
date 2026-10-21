@@ -68,6 +68,38 @@ def inject_custom_button_styles() -> None:
             padding: 0 !important;
         }
 
+        /* Make best-of-three images clickable without a visible button. */
+        div[class*="st-key-clickable_image_"] {
+            position: relative !important;
+        }
+        div[class*="st-key-clickable_image_"]
+        div[data-testid="stElementContainer"]:has(.stButton) {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 5 !important;
+        }
+        div[class*="st-key-clickable_image_"] .stButton,
+        div[class*="st-key-clickable_image_"] .stButton button {
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+        }
+        div[class*="st-key-clickable_image_"] .stButton button {
+            opacity: 0 !important;
+            cursor: pointer !important;
+        }
+        div[class*="st-key-clickable_image_"]:has(.stButton button:hover)
+        [data-testid="stImage"] {
+            opacity: 0.86;
+        }
+        div[class*="st-key-clickable_image_selected_"] [data-testid="stImage"] {
+            outline: 4px solid #1d4ed8;
+            outline-offset: -4px;
+            border-radius: 0.5rem;
+        }
+
         </style>
         """,
         unsafe_allow_html=True,

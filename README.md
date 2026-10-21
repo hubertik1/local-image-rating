@@ -33,6 +33,16 @@ gets its own quality score (`1`, `0.5`, `0`) and optional comment. The CSV outpu
 one row per set with columns `image_name_1`, `quality_score_1`, `comment_1`, and so on.
 If a set has only one or two files, the app still shows and saves the available images.
 
+### Choose the best of 3 mode
+In `Choose the best of 3`, all available images are shuffled once when the session
+starts and split into sets of up to 3. Click an image to save the choice and
+immediately continue to the next set. Use `Previous` to revisit a set
+and replace its selection.
+
+The CSV contains one row per chosen image and only the columns `name`,
+`test_option`, and `image_name`. It does not contain the other images from a set.
+The file name starts with `results_best_of_three_`.
+
 ### Step-by-step usage
 Repository URL: `https://github.com/hubertik1/local-image-rating`
 
@@ -113,6 +123,16 @@ obraz ma wlasny wybor jakosci (`1`, `0.5`, `0`) i opcjonalny komentarz. CSV zapi
 jeden wiersz na komplet z kolumnami `image_name_1`, `quality_score_1`, `comment_1` itd.
 Jesli komplet ma tylko jeden albo dwa pliki, aplikacja nadal pokazuje i zapisuje
 dostepne obrazy.
+
+### Tryb wyboru najlepszego z 3
+W trybie `Choose the best of 3` wszystkie dostepne obrazy sa tasowane jeden raz
+przy rozpoczeciu sesji i dzielone na zestawy po maksymalnie 3. Kliknij wybrany
+obraz, aby zapisac wybor i od razu przejsc dalej. Przycisk
+`Previous` pozwala wrocic do zestawu i zmienic wybor.
+
+CSV zawiera jeden wiersz na wybrany obraz i tylko kolumny `name`, `test_option`
+oraz `image_name`. Pozostale obrazy z zestawu nie sa zapisywane. Nazwa pliku
+zaczyna sie od `results_best_of_three_`.
 
 ### Uzycie krok po kroku
 URL repozytorium: `https://github.com/hubertik1/local-image-rating`

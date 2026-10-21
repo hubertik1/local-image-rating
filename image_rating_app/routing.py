@@ -1,6 +1,6 @@
 import streamlit as st
 
-from .constants import TEST_OPTION_TRIPLET_QUALITY
+from .constants import TEST_OPTION_BEST_OF_THREE, TEST_OPTION_TRIPLET_QUALITY
 
 
 PAGE_SETUP = "setup"
@@ -43,7 +43,10 @@ def navigate_to(page: str, index: int | None = None) -> None:
 
 
 def _rating_item_count() -> int:
-    if st.session_state.test_option == TEST_OPTION_TRIPLET_QUALITY:
+    if st.session_state.test_option in {
+        TEST_OPTION_TRIPLET_QUALITY,
+        TEST_OPTION_BEST_OF_THREE,
+    }:
         return len(st.session_state.get("image_groups", []))
     return len(st.session_state.get("images", []))
 

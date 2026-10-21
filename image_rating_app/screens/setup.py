@@ -3,16 +3,22 @@ import streamlit as st
 from ..constants import (
     DEFAULT_EMOTIONS,
     EMOTIONS_LEFT_COLUMN_COUNT,
+    OPTION_BEST_OF_THREE_LABEL,
     OPTION_EMOTIONS_LABEL,
     OPTION_QUALITY_LABEL,
     OPTION_TRIPLET_QUALITY_LABEL,
+    TEST_OPTION_BEST_OF_THREE,
     TEST_OPTION_EMOTIONS,
     TEST_OPTION_QUALITY,
     TEST_OPTION_TRIPLET_QUALITY,
 )
 from ..dialogs import request_error_alert
 from ..state import start_session
-from ..storage import build_triplet_image_groups, get_image_paths
+from ..storage import (
+    build_random_image_groups,
+    build_triplet_image_groups,
+    get_image_paths,
+)
 from ..styles import sync_keyboard_shortcuts
 
 
@@ -34,6 +40,7 @@ def render_setup_screen() -> None:
                 OPTION_QUALITY_LABEL,
                 OPTION_EMOTIONS_LABEL,
                 OPTION_TRIPLET_QUALITY_LABEL,
+                OPTION_BEST_OF_THREE_LABEL,
             ],
             key="draft_option",
         )
@@ -42,7 +49,10 @@ def render_setup_screen() -> None:
             if selected_option_label == OPTION_TRIPLET_QUALITY_LABEL
             else len(image_paths) == 0
         )
-        if selected_option_label != OPTION_TRIPLET_QUALITY_LABEL:
+        if selected_option_label not in {
+            OPTION_TRIPLET_QUALITY_LABEL,
+            OPTION_BEST_OF_THREE_LABEL,
+        }:
             st.checkbox("Show labels", key="draft_show_labels", value=False)
         start_clicked = st.button("Start", type="primary", disabled=start_disabled)
 
@@ -75,6 +85,13 @@ def render_setup_screen() -> None:
                     "Some sets have fewer than 3 images and will still be shown: "
                     f"{preview}{suffix}"
                 )
+        elif selected_option_label == OPTION_BEST_OF_THREE_LABEL:
+            group_count = (len(image_paths) + 2) // 3
+            st.write("Best-image selection:")
+            st.info(
+                f"{len(image_paths)} images will be shuffled into "
+                f"{group_count} sets of up to 3."
+            )
 
     if start_clicked:
         errors: list[str] = []
@@ -83,11 +100,16 @@ def render_setup_screen() -> None:
             test_option = TEST_OPTION_EMOTIONS
         elif selected_option_label == OPTION_TRIPLET_QUALITY_LABEL:
             test_option = TEST_OPTION_TRIPLET_QUALITY
+        elif selected_option_label == OPTION_BEST_OF_THREE_LABEL:
+            test_option = TEST_OPTION_BEST_OF_THREE
         else:
             test_option = TEST_OPTION_QUALITY
         show_labels = (
             False
-            if test_option == TEST_OPTION_TRIPLET_QUALITY
+            if test_option in {
+                TEST_OPTION_TRIPLET_QUALITY,
+                TEST_OPTION_BEST_OF_THREE,
+            }
             else bool(st.session_state.get("draft_show_labels", False))
         )
 
@@ -103,11 +125,15 @@ def render_setup_screen() -> None:
         if errors:
             request_error_alert("\n".join(errors))
         else:
+            session_image_groups = triplet_groups
+            if test_option == TEST_OPTION_BEST_OF_THREE:
+                session_image_groups = build_random_image_groups(image_paths)
+
             start_session(
                 user_name,
                 test_option,
                 selected_emotions,
                 image_paths,
                 show_labels,
-                triplet_groups,
+                session_image_groups,
             )

@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import random
 import re
 import unicodedata
 
@@ -10,6 +11,7 @@ from .constants import (
     IMAGE_DIR,
     OUTPUT_DIR,
     SUPPORTED_EXTENSIONS,
+    TEST_OPTION_BEST_OF_THREE,
     TEST_OPTION_EMOTIONS,
     TEST_OPTION_TRIPLET_QUALITY,
     TRIPLET_IMAGE_COUNT,
@@ -77,6 +79,19 @@ def build_triplet_image_groups(
             incomplete_group_keys.append(group_key)
 
     return image_groups, incomplete_group_keys
+
+
+def build_random_image_groups(image_paths: list[Path]) -> list[list[Path]]:
+    shuffled_paths = list(image_paths)
+    random.SystemRandom().shuffle(shuffled_paths)
+    return [
+        shuffled_paths[index : index + TRIPLET_IMAGE_COUNT]
+        for index in range(0, len(shuffled_paths), TRIPLET_IMAGE_COUNT)
+    ]
+
+
+def get_selection_group_key(group_index: int) -> str:
+    return f"best_of_three_{group_index}"
 
 
 def get_triplet_group_key(image_group: list[Path]) -> str:
@@ -162,6 +177,29 @@ def build_results_dataframe() -> pd.DataFrame:
         else {}
     )
 
+    if test_option == TEST_OPTION_BEST_OF_THREE:
+        for group_index, _image_group in enumerate(image_groups):
+            group_key = get_selection_group_key(group_index)
+            if group_key not in ratings:
+                continue
+
+            selected_image_name = ratings[group_key].get("image_name", "")
+            if not selected_image_name:
+                continue
+
+            rows.append(
+                {
+                    "name": st.session_state.name,
+                    "test_option": test_option,
+                    "image_name": selected_image_name,
+                }
+            )
+
+        return pd.DataFrame(
+            rows,
+            columns=["name", "test_option", "image_name"],
+        )
+
     if test_option == TEST_OPTION_TRIPLET_QUALITY:
         for image_group in image_groups:
             group_key = get_triplet_group_key(image_group)
@@ -234,7 +272,12 @@ def save_results_csv() -> None:
     dataframe = build_results_dataframe()
     timestamp = datetime.now().strftime("%d%m%Y_%H%M%S")
     safe_name = sanitize_for_filename(st.session_state.name)
-    output_path = OUTPUT_DIR / f"results_{timestamp}_{safe_name}.csv"
+    result_prefix = (
+        "results_best_of_three"
+        if st.session_state.test_option == TEST_OPTION_BEST_OF_THREE
+        else "results"
+    )
+    output_path = OUTPUT_DIR / f"{result_prefix}_{timestamp}_{safe_name}.csv"
     dataframe.to_csv(output_path, index=False, encoding="utf-8-sig")
 
     st.session_state.saved_csv_path = str(output_path)
