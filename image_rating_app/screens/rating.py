@@ -14,6 +14,7 @@ from ..dialogs import (
     request_error_alert,
     request_finish_confirmation,
 )
+from ..routing import PAGE_RATING, PAGE_SETUP, navigate_to
 from ..state import reset_session
 from ..storage import (
     get_image_key,
@@ -347,8 +348,7 @@ def render_triplet_rating_screen() -> None:
         st.session_state.finish_confirm_visible = False
         store_current_triplet_draft(current_group, current_index)
         if current_index > 0:
-            st.session_state.current_index = current_index - 1
-        st.rerun()
+            navigate_to(PAGE_RATING, current_index - 1)
 
     if next_clicked:
         st.session_state.finish_confirm_visible = False
@@ -358,14 +358,16 @@ def render_triplet_rating_screen() -> None:
             group_key = get_triplet_group_key(current_group)
             st.session_state.ratings[group_key] = payload
             st.session_state.draft_ratings.pop(group_key, None)
-            st.session_state.current_index = current_index + 1
-            st.rerun()
+            navigate_to(PAGE_RATING, current_index + 1)
 
     if finish_clicked:
         request_finish_confirmation()
 
 
 def render_rating_screen() -> None:
+    if st.button("← Back to setup", key="back_to_setup_btn"):
+        navigate_to(PAGE_SETUP)
+
     if st.session_state.test_option == TEST_OPTION_TRIPLET_QUALITY:
         render_triplet_rating_screen()
         return
@@ -473,8 +475,7 @@ def render_rating_screen() -> None:
         st.session_state.finish_confirm_visible = False
         store_current_draft(current_path, current_index)
         if current_index > 0:
-            st.session_state.current_index = current_index - 1
-        st.rerun()
+            navigate_to(PAGE_RATING, current_index - 1)
 
     if next_clicked:
         st.session_state.finish_confirm_visible = False
@@ -492,8 +493,7 @@ def render_rating_screen() -> None:
                     "comment": payload["comment"],
                 }
             st.session_state.draft_ratings.pop(image_key, None)
-            st.session_state.current_index = current_index + 1
-            st.rerun()
+            navigate_to(PAGE_RATING, current_index + 1)
 
     if finish_clicked:
         request_finish_confirmation()

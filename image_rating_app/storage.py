@@ -14,6 +14,7 @@ from .constants import (
     TEST_OPTION_TRIPLET_QUALITY,
     TRIPLET_IMAGE_COUNT,
 )
+from .routing import PAGE_FINISHED, set_route
 
 
 TRIPLET_MEMBER_PATTERN = re.compile(r"^(?P<base>.+)_(?P<slot>[123])$")
@@ -236,7 +237,7 @@ def save_results_csv() -> None:
     output_path = OUTPUT_DIR / f"results_{timestamp}_{safe_name}.csv"
     dataframe.to_csv(output_path, index=False, encoding="utf-8-sig")
 
-    st.session_state.phase = "finished"
     st.session_state.saved_csv_path = str(output_path)
     st.session_state.saved_rows = len(dataframe)
     st.session_state.finish_confirm_visible = False
+    set_route(PAGE_FINISHED)

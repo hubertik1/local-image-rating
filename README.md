@@ -63,6 +63,7 @@ cd local-image-rating
 
 6. Rate images:
 - use `Previous` / `Next`
+- use the browser Back / Forward buttons or the URL query parameters to revisit a step
 - click `Finish` when done and confirm save
 
 7. Get results:
@@ -73,6 +74,9 @@ cd local-image-rating
 ### Notes
 - If `new_images/` is empty, the app will not start rating.
 - The first run can take longer because dependencies are installed.
+- Navigation state is reflected in the URL, for example `?page=setup`,
+  `?page=rating&index=2`, and `?page=finished`. Rating URLs work within the
+  current browser session because unsaved ratings are kept in Streamlit session state.
 
 ---
 
@@ -140,6 +144,7 @@ cd local-image-rating
 
 6. Oceniaj obrazy:
 - uzywaj `Previous` / `Next`
+- uzywaj przyciskow Wstecz / Dalej przegladarki albo parametrow URL, aby wrocic do etapu
 - kliknij `Finish` na koncu i potwierdz zapis
 
 7. Odbierz wyniki:
@@ -150,3 +155,6 @@ cd local-image-rating
 ### Uwagi
 - Jesli `new_images/` jest pusty, nie da sie zaczac oceniania.
 - Pierwsze uruchomienie moze trwac dluzej, bo instaluja sie zaleznosci.
+- Stan nawigacji jest widoczny w URL, np. `?page=setup`,
+  `?page=rating&index=2` i `?page=finished`. Adres etapu oceniania dziala w
+  aktualnej sesji przegladarki, bo niezapisane oceny sa przechowywane przez Streamlit.

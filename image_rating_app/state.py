@@ -2,6 +2,8 @@ from pathlib import Path
 
 import streamlit as st
 
+from .routing import PAGE_RATING, PAGE_SETUP, set_route
+
 
 def init_state() -> None:
     defaults = {
@@ -33,7 +35,6 @@ def start_session(
     show_labels: bool,
     image_groups: list[list[Path]] | None = None,
 ) -> None:
-    st.session_state.phase = "rating"
     st.session_state.name = name
     st.session_state.test_option = test_option
     st.session_state.show_labels = show_labels
@@ -49,9 +50,11 @@ def start_session(
     st.session_state.saved_csv_path = ""
     st.session_state.saved_rows = 0
     st.session_state.finish_confirm_visible = False
+    set_route(PAGE_RATING, 0)
     st.rerun()
 
 
 def reset_session() -> None:
     st.session_state.clear()
+    set_route(PAGE_SETUP)
     st.rerun()
