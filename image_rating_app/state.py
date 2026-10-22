@@ -13,6 +13,9 @@ def init_state() -> None:
         "show_labels": False,
         "selected_emotions": [],
         "images": [],
+        "image_root": "",
+        "source_image_root": "",
+        "folder_browser_visible": False,
         "image_groups": [],
         "current_index": 0,
         "ratings": {},
@@ -34,6 +37,7 @@ def start_session(
     images: list[Path],
     show_labels: bool,
     image_groups: list[list[Path]] | None = None,
+    image_root: Path | None = None,
 ) -> None:
     st.session_state.name = name
     st.session_state.test_option = test_option
@@ -41,6 +45,7 @@ def start_session(
     st.session_state.rating_show_labels = show_labels
     st.session_state.selected_emotions = selected_emotions
     st.session_state.images = [str(path) for path in images]
+    st.session_state.image_root = str(image_root) if image_root is not None else ""
     st.session_state.image_groups = [
         [str(path) for path in group] for group in (image_groups or [])
     ]
@@ -55,6 +60,8 @@ def start_session(
 
 
 def reset_session() -> None:
+    source_image_root = st.session_state.get("source_image_root", "")
     st.session_state.clear()
+    st.session_state.source_image_root = source_image_root
     set_route(PAGE_SETUP)
     st.rerun()

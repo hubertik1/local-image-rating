@@ -4,7 +4,7 @@
 
 ### What this app does
 This is a local Streamlit app for manual image evaluation.
-You add images to `new_images/`, review them one by one, and save results as CSV files in `output/`.
+Choose an image folder anywhere on your computer, review the images, and save results as CSV files in `output/`.
 
 ### Supported image formats
 - `.png`
@@ -21,11 +21,18 @@ You can organize images in subfolders, for example:
 Then you can enable `Show labels` in the app to display the folder name as a label.
 
 ### Choose a folder to evaluate
-Use the `Browse folders` panel on the setup screen to choose one category or
-`All folders` before clicking `Start`. The picker lists folders containing images
-under `new_images/`, including nested folders with their relative paths. `Main folder`
-means images directly inside `new_images/`. Choosing a folder includes only its
-own images; nested folders are separate categories. This selection applies to all modes.
+In the `Browse folders` panel, click `Browse computer…`. Use `Jump to` for a drive
+or common location, select a subfolder and click `Open`, or enter a `Folder path`.
+Click `Use this folder` to load its images directly; copying them is unnecessary.
+The browser shows folders on the computer running the app. `Use default folder`
+returns to `new_images/`.
+
+Then choose one category or `All folders` before clicking `Start`. Categories are
+folders containing images under your chosen location, including nested folders
+with their relative paths. `Main folder` means images directly inside that location.
+Choosing a category includes only its own images; nested folders remain separate.
+The selection applies to all modes and is remembered when starting a new session
+in the same browser tab. Each rating session keeps its original image location.
 
 ### 3-image quality mode
 The app also supports rating images in sets of up to 3. Add files with the same
@@ -70,7 +77,7 @@ without cropping, so the buttons stay in the same place for every image.
 
 `Finish and save CSV` is available at any time. The export includes only rated
 images, with columns `name`, `test_option`, `image_name`, `image_path`, and `rating`.
-The relative `image_path` distinguishes matching file names in different folders.
+The `image_path`, relative to the chosen image location, distinguishes matching file names in different folders.
 The file name starts with `results_single_image_review_`.
 
 ### Step-by-step usage
@@ -82,7 +89,7 @@ git clone https://github.com/hubertik1/local-image-rating
 cd local-image-rating
 ```
 
-2. Add images to `new_images/`:
+2. Prepare your image folder anywhere on the computer, or add images to `new_images/`:
 - flat structure: `new_images/img1.jpg`
 - or with label folders: `new_images/label_name/img1.jpg`
 
@@ -112,7 +119,7 @@ cd local-image-rating
   `results_<DDMMYYYY_HHMMSS>_<name>.csv`
 
 ### Notes
-- If `new_images/` is empty, the app will not start rating.
+- If the selected folder has no supported images, choose another folder before starting.
 - The first run can take longer because dependencies are installed.
 - Navigation state is reflected in the URL, for example `?page=setup`,
   `?page=rating&index=2`, and `?page=finished`. Rating URLs work within the
@@ -124,7 +131,7 @@ cd local-image-rating
 
 ### Co robi aplikacja
 To lokalna aplikacja Streamlit do recznej oceny obrazow.
-Dodajesz obrazy do `new_images/`, oceniasz je po kolei i zapisujesz wyniki jako CSV w `output/`.
+Wybierasz folder obrazow w dowolnym miejscu na komputerze, oceniasz obrazy i zapisujesz wyniki jako CSV w `output/`.
 
 ### Obslugiwane formaty obrazow
 - `.png`
@@ -141,11 +148,17 @@ Mozesz ulozyc obrazy w podfolderach, np.:
 Wtedy po wlaczeniu `Show labels` aplikacja pokazuje nazwe folderu jako label.
 
 ### Wybor folderu do oceny
-W panelu `Browse folders` na ekranie startowym wybierz jedna kategorie lub
-`All folders`, a nastepnie kliknij `Start`. Lista obejmuje foldery z obrazami
-w `new_images/`, w tym podfoldery oznaczone sciezkami wzglednymi. `Main folder`
-oznacza obrazy bezposrednio w `new_images/`. Wybor obejmuje tylko obrazy z danego
-folderu; jego podfoldery sa osobnymi kategoriami. Wybor dotyczy wszystkich trybow.
+W panelu `Browse folders` kliknij `Browse computer…`. Przejdz do dysku lub lokalizacji
+przez `Jump to`, wybierz podfolder i kliknij `Open` albo wpisz `Folder path`.
+Kliknij `Use this folder`, aby wczytac obrazy bez kopiowania. Przegladarka pokazuje
+foldery komputera, na ktorym dziala aplikacja. `Use default folder` wraca do `new_images/`.
+
+Nastepnie wybierz jedna kategorie lub `All folders` i kliknij `Start`. Lista obejmuje
+foldery z obrazami we wskazanej lokalizacji, w tym podfoldery oznaczone sciezkami
+wzglednymi. `Main folder` oznacza obrazy bezposrednio w wybranej lokalizacji.
+Wybor kategorii obejmuje tylko jej obrazy; podfoldery sa osobnymi kategoriami.
+Wybor dotyczy wszystkich trybow i pozostaje zapamietany przy nowej sesji w tej samej
+karcie przegladarki. Trwajaca sesja zachowuje swoja pierwotna lokalizacje obrazow.
 
 ### Tryb jakosci dla 3 obrazow
 Aplikacja obsluguje tez ocenianie kompletow do 3 obrazow. Dodaj pliki z ta sama
@@ -204,7 +217,7 @@ git clone https://github.com/hubertik1/local-image-rating
 cd local-image-rating
 ```
 
-2. Wrzuc obrazy do `new_images/`:
+2. Przygotuj folder obrazow w dowolnym miejscu na komputerze lub wrzuc obrazy do `new_images/`:
 - bez folderow: `new_images/img1.jpg`
 - albo z folderami labeli: `new_images/nazwa_labelu/img1.jpg`
 
@@ -234,7 +247,7 @@ cd local-image-rating
   `results_<DDMMYYYY_HHMMSS>_<name>.csv`
 
 ### Uwagi
-- Jesli `new_images/` jest pusty, nie da sie zaczac oceniania.
+- Jesli wybrany folder nie zawiera obslugiwanych obrazow, przed rozpoczeciem wybierz inny folder.
 - Pierwsze uruchomienie moze trwac dluzej, bo instaluja sie zaleznosci.
 - Stan nawigacji jest widoczny w URL, np. `?page=setup`,
   `?page=rating&index=2` i `?page=finished`. Adres etapu oceniania dziala w

@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import os
 import random
 import re
 import unicodedata
@@ -28,37 +29,58 @@ def ensure_dirs() -> None:
     OUTPUT_DIR.mkdir(exist_ok=True)
 
 
-def get_image_paths() -> list[Path]:
+def get_source_image_root() -> Path:
+    """The setup selection can change without changing an active session's keys."""
+    return Path(st.session_state.get("source_image_root") or IMAGE_DIR)
+
+
+def get_session_image_root() -> Path:
+    return Path(st.session_state.get("image_root") or IMAGE_DIR)
+
+
+def get_image_paths(image_root: Path | None = None) -> list[Path]:
     ensure_dirs()
-    images = [
-        path
-        for path in IMAGE_DIR.rglob("*")
-        if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
-    ]
-    return sorted(images, key=lambda p: str(p.relative_to(IMAGE_DIR)).lower())
+    root = image_root if image_root is not None else IMAGE_DIR
+    if not root.is_dir():
+        raise NotADirectoryError(f"Image folder is unavailable: {root}")
+
+    def raise_scan_error(error: OSError) -> None:
+        raise error
+
+    images = []
+    for directory, _, filenames in os.walk(root, onerror=raise_scan_error, followlinks=False):
+        for filename in filenames:
+            path = Path(directory) / filename
+            if path.suffix.lower() in SUPPORTED_EXTENSIONS and path.is_file():
+                images.append(path)
+    return sorted(images, key=lambda p: str(p.relative_to(root)).lower())
 
 
-def get_image_folder_key(image_path: Path) -> str:
+def get_image_folder_key(image_path: Path, image_root: Path | None = None) -> str:
+    root = image_root if image_root is not None else get_session_image_root()
     try:
-        return image_path.relative_to(IMAGE_DIR).parent.as_posix()
+        return image_path.relative_to(root).parent.as_posix()
     except ValueError:
         return image_path.parent.as_posix()
 
 
-def group_images_by_folder(image_paths: list[Path]) -> dict[str, list[Path]]:
+def group_images_by_folder(
+    image_paths: list[Path], image_root: Path | None = None,
+) -> dict[str, list[Path]]:
     folders: dict[str, list[Path]] = {}
     for image_path in image_paths:
-        folders.setdefault(get_image_folder_key(image_path), []).append(image_path)
+        folders.setdefault(get_image_folder_key(image_path, image_root), []).append(image_path)
     return dict(sorted(folders.items(), key=lambda item: item[0].casefold()))
 
 
-def parse_triplet_member(image_path: Path) -> tuple[str, int] | None:
+def parse_triplet_member(image_path: Path, image_root: Path | None = None) -> tuple[str, int] | None:
     match = TRIPLET_MEMBER_PATTERN.match(image_path.stem)
     if match is None:
         return None
 
     try:
-        relative_path = image_path.relative_to(IMAGE_DIR)
+        root = image_root if image_root is not None else get_session_image_root()
+        relative_path = image_path.relative_to(root)
     except ValueError:
         relative_path = image_path
 
@@ -68,11 +90,12 @@ def parse_triplet_member(image_path: Path) -> tuple[str, int] | None:
 
 def build_triplet_image_groups(
     image_paths: list[Path],
+    image_root: Path | None = None,
 ) -> tuple[list[list[Path]], list[str]]:
     grouped_paths: dict[str, dict[int, Path]] = {}
 
     for image_path in image_paths:
-        parsed = parse_triplet_member(image_path)
+        parsed = parse_triplet_member(image_path, image_root)
         if parsed is None:
             continue
 
@@ -96,11 +119,13 @@ def build_triplet_image_groups(
     return image_groups, incomplete_group_keys
 
 
-def build_random_image_groups(image_paths: list[Path]) -> list[list[Path]]:
+def build_random_image_groups(
+    image_paths: list[Path], image_root: Path | None = None,
+) -> list[list[Path]]:
     """Shuffle within each category folder, keeping incomplete sets separate."""
     image_groups: list[list[Path]] = []
     randomizer = random.SystemRandom()
-    for folder_paths in group_images_by_folder(image_paths).values():
+    for folder_paths in group_images_by_folder(image_paths, image_root).values():
         randomizer.shuffle(folder_paths)
         image_groups.extend(
             folder_paths[index : index + TRIPLET_IMAGE_COUNT]
@@ -127,14 +152,14 @@ def get_triplet_group_key(image_group: list[Path]) -> str:
 
 def get_image_key(image_path: Path) -> str:
     try:
-        return image_path.relative_to(IMAGE_DIR).as_posix()
+        return image_path.relative_to(get_session_image_root()).as_posix()
     except ValueError:
         return image_path.as_posix()
 
 
 def get_image_label(image_path: Path) -> str:
     try:
-        relative_path = image_path.relative_to(IMAGE_DIR)
+        relative_path = image_path.relative_to(get_session_image_root())
     except ValueError:
         return ""
 

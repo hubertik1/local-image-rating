@@ -16,11 +16,13 @@ from ..constants import (
     TRIPLET_IMAGE_COUNT,
 )
 from ..dialogs import request_error_alert
+from ..folder_browser import open_folder_browser, render_folder_browser, use_default_image_folder
 from ..state import start_session
 from ..storage import (
     build_random_image_groups,
     build_triplet_image_groups,
     get_image_paths,
+    get_source_image_root,
     group_images_by_folder,
 )
 from ..styles import sync_keyboard_shortcuts
@@ -30,8 +32,20 @@ def render_setup_screen() -> None:
     sync_keyboard_shortcuts(False)
     st.title("Image Rating App")
 
-    all_image_paths = get_image_paths()
-    folder_images = group_images_by_folder(all_image_paths)
+    image_root = get_source_image_root()
+    with st.sidebar:
+        st.header("Browse folders")
+        st.caption("Image location")
+        st.text(str(image_root.resolve()))
+        st.button("Browse computer…", key="browse_computer", on_click=open_folder_browser, args=(image_root,), width="stretch")
+        if st.session_state.get("source_image_root"):
+            st.button("Use default folder", key="use_default_folder", on_click=use_default_image_folder, width="stretch")
+    try:
+        all_image_paths = get_image_paths(image_root)
+    except OSError as error:
+        all_image_paths = []
+        st.error(f"Cannot read the selected image folder: {error}")
+    folder_images = group_images_by_folder(all_image_paths, image_root)
     folder_options = [None, *folder_images]
     if st.session_state.get("draft_image_folder") not in folder_options:
         st.session_state.draft_image_folder = None
@@ -43,22 +57,21 @@ def render_setup_screen() -> None:
         return f"{label} ({len(folder_images[folder])} images)"
 
     with st.sidebar:
-        st.header("Browse folders")
         selected_folder = st.selectbox(
             "Folder to evaluate",
             options=folder_options,
             format_func=format_folder,
             key="draft_image_folder",
-            help="Choose a category in new_images. Each nested folder is listed separately.",
+            help="Choose a category within the selected image location. Each nested folder is listed separately.",
         )
         image_paths = (
             all_image_paths if selected_folder is None else folder_images[selected_folder]
         )
         st.caption(f"{len(image_paths)} images available")
 
-    triplet_groups, incomplete_triplet_groups = build_triplet_image_groups(image_paths)
+    triplet_groups, incomplete_triplet_groups = build_triplet_image_groups(image_paths, image_root)
     if not image_paths:
-        st.warning("No images found in new_images")
+        st.warning("No supported images found in the selected folder. Choose another image location.")
 
     left_col, right_col = st.columns([1, 1], gap="large")
     with left_col:
@@ -117,7 +130,7 @@ def render_setup_screen() -> None:
                     f"{preview}{suffix}"
                 )
         elif selected_option_label == OPTION_BEST_OF_THREE_LABEL:
-            selected_folders = group_images_by_folder(image_paths)
+            selected_folders = group_images_by_folder(image_paths, image_root)
             group_count = sum(
                 (len(paths) + TRIPLET_IMAGE_COUNT - 1) // TRIPLET_IMAGE_COUNT
                 for paths in selected_folders.values()
@@ -169,16 +182,16 @@ def render_setup_screen() -> None:
         if test_option == TEST_OPTION_EMOTIONS and not selected_emotions:
             errors.append("Select at least one emotion.")
         if test_option == TEST_OPTION_TRIPLET_QUALITY and not triplet_groups:
-            errors.append("No image sets ending with _1, _2 or _3 found in new_images.")
+            errors.append("No image sets ending with _1, _2 or _3 found in the selected folder.")
         if not image_paths:
-            errors.append("No images found in new_images.")
+            errors.append("No images found in the selected folder.")
 
         if errors:
             request_error_alert("\n".join(errors))
         else:
             session_image_groups = triplet_groups
             if test_option == TEST_OPTION_BEST_OF_THREE:
-                session_image_groups = build_random_image_groups(image_paths)
+                session_image_groups = build_random_image_groups(image_paths, image_root)
 
             start_session(
                 user_name,
@@ -187,4 +200,8 @@ def render_setup_screen() -> None:
                 image_paths,
                 show_labels,
                 session_image_groups,
+                image_root,
             )
+
+    if st.session_state.get("folder_browser_visible"):
+        render_folder_browser()
