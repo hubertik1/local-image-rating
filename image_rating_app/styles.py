@@ -71,6 +71,12 @@ def inject_custom_button_styles() -> None:
             padding: 0 !important;
         }
 
+        /* Keep single-image reviews visible alongside their rating buttons. */
+        .st-key-single_image_review_image [data-testid="stImage"] img {
+            max-height: 70vh;
+            object-fit: contain;
+        }
+
         /* Make best-of-three images clickable without a visible button. */
         div[class*="st-key-clickable_image_"] {
             position: relative !important;

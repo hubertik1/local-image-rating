@@ -6,10 +6,12 @@ from ..constants import (
     OPTION_BEST_OF_THREE_LABEL,
     OPTION_EMOTIONS_LABEL,
     OPTION_QUALITY_LABEL,
+    OPTION_SINGLE_IMAGE_REVIEW_LABEL,
     OPTION_TRIPLET_QUALITY_LABEL,
     TEST_OPTION_BEST_OF_THREE,
     TEST_OPTION_EMOTIONS,
     TEST_OPTION_QUALITY,
+    TEST_OPTION_SINGLE_IMAGE_REVIEW,
     TEST_OPTION_TRIPLET_QUALITY,
     TRIPLET_IMAGE_COUNT,
 )
@@ -68,6 +70,7 @@ def render_setup_screen() -> None:
                 OPTION_EMOTIONS_LABEL,
                 OPTION_TRIPLET_QUALITY_LABEL,
                 OPTION_BEST_OF_THREE_LABEL,
+                OPTION_SINGLE_IMAGE_REVIEW_LABEL,
             ],
             key="draft_option",
         )
@@ -79,6 +82,7 @@ def render_setup_screen() -> None:
         if selected_option_label not in {
             OPTION_TRIPLET_QUALITY_LABEL,
             OPTION_BEST_OF_THREE_LABEL,
+            OPTION_SINGLE_IMAGE_REVIEW_LABEL,
         }:
             st.checkbox("Show labels", key="draft_show_labels", value=False)
         start_clicked = st.button("Start", type="primary", disabled=start_disabled)
@@ -125,6 +129,17 @@ def render_setup_screen() -> None:
             )
             if any(len(paths) % TRIPLET_IMAGE_COUNT for paths in selected_folders.values()):
                 st.caption("Any remaining 1 or 2 images stay in a separate set from their own folder.")
+        elif selected_option_label == OPTION_SINGLE_IMAGE_REVIEW_LABEL:
+            st.write("Single-image review:")
+            st.info(
+                f"{len(image_paths)} images to review one at a time. Choose Great!, "
+                "Good concept but needs improvement, or Delete to save a rating "
+                "and advance automatically."
+            )
+            st.caption(
+                "Use Previous to revise a rating, or Finish and save CSV at any time. "
+                "Delete is a rating; original image files are kept."
+            )
 
     if start_clicked:
         errors: list[str] = []
@@ -135,6 +150,8 @@ def render_setup_screen() -> None:
             test_option = TEST_OPTION_TRIPLET_QUALITY
         elif selected_option_label == OPTION_BEST_OF_THREE_LABEL:
             test_option = TEST_OPTION_BEST_OF_THREE
+        elif selected_option_label == OPTION_SINGLE_IMAGE_REVIEW_LABEL:
+            test_option = TEST_OPTION_SINGLE_IMAGE_REVIEW
         else:
             test_option = TEST_OPTION_QUALITY
         show_labels = (
@@ -142,6 +159,7 @@ def render_setup_screen() -> None:
             if test_option in {
                 TEST_OPTION_TRIPLET_QUALITY,
                 TEST_OPTION_BEST_OF_THREE,
+                TEST_OPTION_SINGLE_IMAGE_REVIEW,
             }
             else bool(st.session_state.get("draft_show_labels", False))
         )

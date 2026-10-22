@@ -26,11 +26,19 @@ OPTION_EMOTIONS_LABEL = "Emotion-based rating"
 OPTION_QUALITY_LABEL = "Quality rating"
 OPTION_TRIPLET_QUALITY_LABEL = "3-image quality rating"
 OPTION_BEST_OF_THREE_LABEL = "Choose the best of 3"
+OPTION_SINGLE_IMAGE_REVIEW_LABEL = "Single-image review"
 
 TEST_OPTION_EMOTIONS = "emotions"
 TEST_OPTION_QUALITY = "quality"
 TEST_OPTION_TRIPLET_QUALITY = "triplet_quality"
 TEST_OPTION_BEST_OF_THREE = "best_of_three"
+TEST_OPTION_SINGLE_IMAGE_REVIEW = "single_image_review"
+
+SINGLE_IMAGE_REVIEW_CHOICES = (
+    ("great", "Great!"),
+    ("improve", "Good concept but needs improvement"),
+    ("delete", "Delete"),
+)
 
 QUALITY_SCORE_OPTIONS = {"1", "0.5", "0"}
 TRIPLET_IMAGE_COUNT = 3

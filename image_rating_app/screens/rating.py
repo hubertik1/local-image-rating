@@ -7,6 +7,7 @@ from ..constants import (
     QUALITY_SCORE_OPTIONS,
     TEST_OPTION_BEST_OF_THREE,
     TEST_OPTION_EMOTIONS,
+    TEST_OPTION_SINGLE_IMAGE_REVIEW,
     TEST_OPTION_TRIPLET_QUALITY,
     TRIPLET_IMAGE_COUNT,
 )
@@ -26,6 +27,7 @@ from ..storage import (
     parse_triplet_member,
 )
 from ..styles import sync_keyboard_shortcuts
+from .single_image_review import render_single_image_review_screen
 
 
 def format_quality_option(value: str) -> str:
@@ -483,6 +485,10 @@ def render_rating_screen() -> None:
 
     if st.session_state.test_option == TEST_OPTION_BEST_OF_THREE:
         render_best_of_three_screen()
+        return
+
+    if st.session_state.test_option == TEST_OPTION_SINGLE_IMAGE_REVIEW:
+        render_single_image_review_screen()
         return
 
     images = [Path(path) for path in st.session_state.images]

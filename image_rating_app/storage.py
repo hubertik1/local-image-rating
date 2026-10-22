@@ -13,6 +13,7 @@ from .constants import (
     SUPPORTED_EXTENSIONS,
     TEST_OPTION_BEST_OF_THREE,
     TEST_OPTION_EMOTIONS,
+    TEST_OPTION_SINGLE_IMAGE_REVIEW,
     TEST_OPTION_TRIPLET_QUALITY,
     TRIPLET_IMAGE_COUNT,
 )
@@ -195,6 +196,25 @@ def build_results_dataframe() -> pd.DataFrame:
         else {}
     )
 
+    if test_option == TEST_OPTION_SINGLE_IMAGE_REVIEW:
+        for image_path in images:
+            image_key = get_image_key(image_path)
+            if image_key not in ratings:
+                continue
+            rows.append(
+                {
+                    "name": st.session_state.name,
+                    "test_option": test_option,
+                    "image_name": image_path.name,
+                    "image_path": image_key,
+                    "rating": ratings[image_key]["rating"],
+                }
+            )
+        return pd.DataFrame(
+            rows,
+            columns=["name", "test_option", "image_name", "image_path", "rating"],
+        )
+
     if test_option == TEST_OPTION_BEST_OF_THREE:
         reviewed_image_keys = {
             get_image_key(image_path)
@@ -298,11 +318,10 @@ def save_results_csv() -> None:
     dataframe = build_results_dataframe()
     timestamp = datetime.now().strftime("%d%m%Y_%H%M%S")
     safe_name = sanitize_for_filename(st.session_state.name)
-    result_prefix = (
-        "results_best_of_three"
-        if st.session_state.test_option == TEST_OPTION_BEST_OF_THREE
-        else "results"
-    )
+    result_prefix = {
+        TEST_OPTION_BEST_OF_THREE: "results_best_of_three",
+        TEST_OPTION_SINGLE_IMAGE_REVIEW: "results_single_image_review",
+    }.get(st.session_state.test_option, "results")
     output_path = OUTPUT_DIR / f"{result_prefix}_{timestamp}_{safe_name}.csv"
     dataframe.to_csv(output_path, index=False, encoding="utf-8-sig")
 

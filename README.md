@@ -58,6 +58,18 @@ sets are omitted when finishing early. Its columns are `name`,
 chosen image and `0` for every other image. The file name starts with
 `results_best_of_three_`.
 
+### Single-image review mode
+Choose `Single-image review` to see one image at a time from the selected folder.
+Click `Great!`, `Good concept but needs improvement`, or `Delete` (shortcuts `1`,
+`2`, and `3`) to record the rating and advance immediately. `Previous` returns to
+the preceding image, highlights its saved rating, and lets you replace it.
+`Delete` is a rating only; it does not remove the image file.
+
+`Finish and save CSV` is available at any time. The export includes only rated
+images, with columns `name`, `test_option`, `image_name`, `image_path`, and `rating`.
+The relative `image_path` distinguishes matching file names in different folders.
+The file name starts with `results_single_image_review_`.
+
 ### Step-by-step usage
 Repository URL: `https://github.com/hubertik1/local-image-rating`
 
@@ -163,6 +175,19 @@ Przy wczesniejszym zakonczeniu nieocenione zestawy sa pomijane. Kolumny to `name
 `test_option`, `image_name` i `selected`. Wartosc `selected` wynosi `1` dla
 wybranego obrazu i `0` dla pozostalych. Nazwa pliku zaczyna sie od
 `results_best_of_three_`.
+
+### Tryb oceny pojedynczych obrazow
+Wybierz `Single-image review`, aby ogladac po jednym obrazie z wybranego folderu.
+Kliknij `Great!`, `Good concept but needs improvement` lub `Delete` (skroty `1`,
+`2` i `3`), aby zapisac ocene i od razu przejsc dalej. `Previous` wraca do
+poprzedniego obrazu, podswietla zapisana ocene i pozwala ja zmienic.
+`Delete` jest tylko ocena; nie usuwa pliku obrazu.
+
+Przycisk `Finish and save CSV` jest dostepny w dowolnym momencie. Eksport obejmuje
+tylko ocenione obrazy i zawiera kolumny `name`, `test_option`, `image_name`,
+`image_path` i `rating`. Sciezka wzgledna w `image_path` rozroznia pliki o takich
+samych nazwach w roznych folderach. Nazwa pliku zaczyna sie od
+`results_single_image_review_`.
 
 ### Uzycie krok po kroku
 URL repozytorium: `https://github.com/hubertik1/local-image-rating`
