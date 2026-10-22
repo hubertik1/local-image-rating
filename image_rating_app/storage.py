@@ -37,6 +37,20 @@ def get_image_paths() -> list[Path]:
     return sorted(images, key=lambda p: str(p.relative_to(IMAGE_DIR)).lower())
 
 
+def get_image_folder_key(image_path: Path) -> str:
+    try:
+        return image_path.relative_to(IMAGE_DIR).parent.as_posix()
+    except ValueError:
+        return image_path.parent.as_posix()
+
+
+def group_images_by_folder(image_paths: list[Path]) -> dict[str, list[Path]]:
+    folders: dict[str, list[Path]] = {}
+    for image_path in image_paths:
+        folders.setdefault(get_image_folder_key(image_path), []).append(image_path)
+    return dict(sorted(folders.items(), key=lambda item: item[0].casefold()))
+
+
 def parse_triplet_member(image_path: Path) -> tuple[str, int] | None:
     match = TRIPLET_MEMBER_PATTERN.match(image_path.stem)
     if match is None:
@@ -82,12 +96,16 @@ def build_triplet_image_groups(
 
 
 def build_random_image_groups(image_paths: list[Path]) -> list[list[Path]]:
-    shuffled_paths = list(image_paths)
-    random.SystemRandom().shuffle(shuffled_paths)
-    return [
-        shuffled_paths[index : index + TRIPLET_IMAGE_COUNT]
-        for index in range(0, len(shuffled_paths), TRIPLET_IMAGE_COUNT)
-    ]
+    """Shuffle within each category folder, keeping incomplete sets separate."""
+    image_groups: list[list[Path]] = []
+    randomizer = random.SystemRandom()
+    for folder_paths in group_images_by_folder(image_paths).values():
+        randomizer.shuffle(folder_paths)
+        image_groups.extend(
+            folder_paths[index : index + TRIPLET_IMAGE_COUNT]
+            for index in range(0, len(folder_paths), TRIPLET_IMAGE_COUNT)
+        )
+    return image_groups
 
 
 def get_selection_group_key(group_index: int) -> str:

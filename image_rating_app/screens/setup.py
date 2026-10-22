@@ -11,6 +11,7 @@ from ..constants import (
     TEST_OPTION_EMOTIONS,
     TEST_OPTION_QUALITY,
     TEST_OPTION_TRIPLET_QUALITY,
+    TRIPLET_IMAGE_COUNT,
 )
 from ..dialogs import request_error_alert
 from ..state import start_session
@@ -18,6 +19,7 @@ from ..storage import (
     build_random_image_groups,
     build_triplet_image_groups,
     get_image_paths,
+    group_images_by_folder,
 )
 from ..styles import sync_keyboard_shortcuts
 
@@ -26,7 +28,32 @@ def render_setup_screen() -> None:
     sync_keyboard_shortcuts(False)
     st.title("Image Rating App")
 
-    image_paths = get_image_paths()
+    all_image_paths = get_image_paths()
+    folder_images = group_images_by_folder(all_image_paths)
+    folder_options = [None, *folder_images]
+    if st.session_state.get("draft_image_folder") not in folder_options:
+        st.session_state.draft_image_folder = None
+
+    def format_folder(folder: str | None) -> str:
+        if folder is None:
+            return "All folders"
+        label = "Main folder" if folder == "." else folder
+        return f"{label} ({len(folder_images[folder])} images)"
+
+    with st.sidebar:
+        st.header("Browse folders")
+        selected_folder = st.selectbox(
+            "Folder to evaluate",
+            options=folder_options,
+            format_func=format_folder,
+            key="draft_image_folder",
+            help="Choose a category in new_images. Each nested folder is listed separately.",
+        )
+        image_paths = (
+            all_image_paths if selected_folder is None else folder_images[selected_folder]
+        )
+        st.caption(f"{len(image_paths)} images available")
+
     triplet_groups, incomplete_triplet_groups = build_triplet_image_groups(image_paths)
     if not image_paths:
         st.warning("No images found in new_images")
@@ -86,12 +113,18 @@ def render_setup_screen() -> None:
                     f"{preview}{suffix}"
                 )
         elif selected_option_label == OPTION_BEST_OF_THREE_LABEL:
-            group_count = (len(image_paths) + 2) // 3
+            selected_folders = group_images_by_folder(image_paths)
+            group_count = sum(
+                (len(paths) + TRIPLET_IMAGE_COUNT - 1) // TRIPLET_IMAGE_COUNT
+                for paths in selected_folders.values()
+            )
             st.write("Best-image selection:")
             st.info(
-                f"{len(image_paths)} images will be shuffled into "
-                f"{group_count} sets of up to 3."
+                f"{len(image_paths)} images will be shuffled within their folders into "
+                f"{group_count} sets of up to 3. Sets never mix folders."
             )
+            if any(len(paths) % TRIPLET_IMAGE_COUNT for paths in selected_folders.values()):
+                st.caption("Any remaining 1 or 2 images stay in a separate set from their own folder.")
 
     if start_clicked:
         errors: list[str] = []

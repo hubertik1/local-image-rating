@@ -19,6 +19,7 @@ from ..routing import PAGE_RATING, PAGE_SETUP, navigate_to
 from ..state import reset_session
 from ..storage import (
     get_image_key,
+    get_image_folder_key,
     get_image_label,
     get_selection_group_key,
     get_triplet_group_key,
@@ -412,6 +413,8 @@ def render_best_of_three_screen() -> None:
     heading_col, finish_col = st.columns([4, 1], vertical_alignment="center")
     with heading_col:
         st.subheader(f"Choose the best image — set {current_index + 1} of {total}")
+        folder_key = get_image_folder_key(current_group[0])
+        st.caption(f"Folder: {'Main folder' if folder_key == '.' else folder_key}")
     with finish_col:
         if st.button("Finish and save CSV", key="finish_btn", width="stretch"):
             request_finish_confirmation()

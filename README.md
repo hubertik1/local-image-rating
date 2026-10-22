@@ -20,6 +20,13 @@ You can organize images in subfolders, for example:
 
 Then you can enable `Show labels` in the app to display the folder name as a label.
 
+### Choose a folder to evaluate
+Use the `Browse folders` panel on the setup screen to choose one category or
+`All folders` before clicking `Start`. The picker lists folders containing images
+under `new_images/`, including nested folders with their relative paths. `Main folder`
+means images directly inside `new_images/`. Choosing a folder includes only its
+own images; nested folders are separate categories. This selection applies to all modes.
+
 ### 3-image quality mode
 The app also supports rating images in sets of up to 3. Add files with the same
 base name and suffixes `_1`, `_2`, `_3`, for example:
@@ -34,8 +41,11 @@ one row per set with columns `image_name_1`, `quality_score_1`, `comment_1`, and
 If a set has only one or two files, the app still shows and saves the available images.
 
 ### Choose the best of 3 mode
-In `Choose the best of 3`, all available images are shuffled once when the session
-starts and split into sets of up to 3. Click an image or press `1`, `2`, or `3`
+In `Choose the best of 3`, images are shuffled separately within each folder when
+the session starts and split into sets of up to 3. Sets never mix folders, even
+when `All folders` is selected. Any leftover one or two images form their own set
+within that folder. The current folder is shown above the images.
+Click an image or press `1`, `2`, or `3`
 for the corresponding image from the left to save the choice and immediately
 continue to the next set. Use `Previous` to revisit a set
 and replace its selection. The image columns expand to use the available screen
@@ -115,6 +125,13 @@ Mozesz ulozyc obrazy w podfolderach, np.:
 
 Wtedy po wlaczeniu `Show labels` aplikacja pokazuje nazwe folderu jako label.
 
+### Wybor folderu do oceny
+W panelu `Browse folders` na ekranie startowym wybierz jedna kategorie lub
+`All folders`, a nastepnie kliknij `Start`. Lista obejmuje foldery z obrazami
+w `new_images/`, w tym podfoldery oznaczone sciezkami wzglednymi. `Main folder`
+oznacza obrazy bezposrednio w `new_images/`. Wybor obejmuje tylko obrazy z danego
+folderu; jego podfoldery sa osobnymi kategoriami. Wybor dotyczy wszystkich trybow.
+
 ### Tryb jakosci dla 3 obrazow
 Aplikacja obsluguje tez ocenianie kompletow do 3 obrazow. Dodaj pliki z ta sama
 nazwa bazowa i koncowkami `_1`, `_2`, `_3`, na przyklad:
@@ -130,8 +147,11 @@ Jesli komplet ma tylko jeden albo dwa pliki, aplikacja nadal pokazuje i zapisuje
 dostepne obrazy.
 
 ### Tryb wyboru najlepszego z 3
-W trybie `Choose the best of 3` wszystkie dostepne obrazy sa tasowane jeden raz
-przy rozpoczeciu sesji i dzielone na zestawy po maksymalnie 3. Kliknij wybrany
+W trybie `Choose the best of 3` obrazy sa tasowane osobno w kazdym folderze
+przy rozpoczeciu sesji i dzielone na zestawy po maksymalnie 3. Zestawy nigdy nie
+mieszaja folderow, takze przy wyborze `All folders`. Pozostale jeden lub dwa obrazy
+tworza osobny zestaw w swoim folderze. Nazwa aktualnego folderu jest widoczna nad obrazami.
+Kliknij wybrany
 obraz albo nacisnij `1`, `2` lub `3` dla odpowiedniej pozycji od lewej, aby
 zapisac wybor i od razu przejsc dalej. Przycisk
 `Previous` pozwala wrocic do zestawu i zmienic wybor. Kolumny obrazow wykorzystuja
