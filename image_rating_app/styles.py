@@ -71,10 +71,130 @@ def inject_custom_button_styles() -> None:
             padding: 0 !important;
         }
 
-        /* Keep single-image reviews visible alongside their rating buttons. */
+        /* Reserve the viewport for the image between two stationary bars. */
+        .block-container:has(.st-key-single_image_review_header) {
+            padding: 0 !important;
+        }
+        .st-key-single_image_review_header,
+        .st-key-single_image_review_controls {
+            position: fixed !important;
+            left: 0.75rem !important;
+            right: 0.75rem !important;
+            width: auto !important;
+            z-index: 20;
+            box-sizing: border-box;
+            background: var(--background-color, #ffffff);
+            gap: 0.5rem !important;
+        }
+        .st-key-single_image_review_header {
+            top: 0 !important;
+            height: 64px !important;
+            padding: 8px 0;
+        }
+        .st-key-single_image_review_controls {
+            bottom: 0 !important;
+            height: 128px !important;
+            padding: 10px 0;
+        }
+        .st-key-single_image_review_header [data-testid="stHorizontalBlock"],
+        .st-key-single_image_review_controls [data-testid="stHorizontalBlock"] {
+            flex-wrap: nowrap !important;
+            gap: 0.5rem !important;
+        }
+        .st-key-single_image_review_header [data-testid="stColumn"],
+        .st-key-single_image_review_controls [data-testid="stColumn"] {
+            min-width: 0 !important;
+        }
+        .st-key-single_image_review_header [data-testid="stVerticalBlock"],
+        .st-key-single_image_review_controls [data-testid="stVerticalBlock"] {
+            gap: 0.15rem !important;
+        }
+        .st-key-single_image_review_header h3 {
+            font-size: 1.15rem !important;
+            line-height: 1.3 !important;
+            padding: 0 !important;
+        }
+        .st-key-single_image_review_header [data-testid="stMarkdownContainer"],
+        .st-key-single_image_review_header [data-testid="stCaptionContainer"],
+        .st-key-single_image_review_controls [data-testid="stCaptionContainer"] {
+            margin: 0 !important;
+        }
+        .st-key-single_image_review_header [data-testid="stCaptionContainer"] p,
+        .st-key-single_image_review_controls [data-testid="stCaptionContainer"] p {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+            line-height: 18px;
+        }
+        .st-key-single_image_review_image {
+            position: fixed !important;
+            inset: 72px 0.75rem 136px !important;
+            width: auto !important;
+            height: auto !important;
+        }
+        .st-key-single_image_review_image [data-testid="stElementContainer"],
+        .st-key-single_image_review_image [data-testid="stFullScreenFrame"],
+        .st-key-single_image_review_image [data-testid="stFullScreenFrame"] > div,
+        .st-key-single_image_review_image [data-testid="stImage"],
+        .st-key-single_image_review_image [data-testid="stImageContainer"],
         .st-key-single_image_review_image [data-testid="stImage"] img {
-            max-height: 70vh;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: none !important;
+        }
+        .st-key-single_image_review_image [data-testid="stImage"] img {
             object-fit: contain;
+        }
+        div[class*="st-key-single_review_choice_"] button {
+            height: 58px !important;
+            min-height: 58px !important;
+            border: 2px solid transparent !important;
+            padding: 4px 8px !important;
+            font-weight: 600;
+        }
+        .st-key-single_review_choice_great button {
+            background: #15803d !important;
+            color: #ffffff !important;
+        }
+        .st-key-single_review_choice_improve button {
+            background: #facc15 !important;
+            color: #422006 !important;
+        }
+        .st-key-single_review_choice_delete button {
+            background: #dc2626 !important;
+            color: #ffffff !important;
+        }
+        div[class*="st-key-single_review_choice_"] button:hover:not(:disabled) {
+            filter: brightness(0.9);
+        }
+        div[class*="st-key-single_review_choice_"] button:disabled {
+            opacity: 0.45;
+        }
+        div[class*="st-key-single_review_choice_"] button[data-testid="stBaseButton-primary"],
+        div[class*="st-key-single_review_choice_"] button:focus-visible {
+            outline: 3px solid #2563eb !important;
+            outline-offset: 2px;
+        }
+        @media (max-width: 640px) {
+            .st-key-single_image_review_header [data-testid="stColumn"],
+            .st-key-single_image_review_controls [data-testid="stColumn"] {
+                flex-basis: 0 !important;
+            }
+            .st-key-single_image_review_header h3 {
+                font-size: 0.9rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .st-key-single_image_review_controls > [data-testid="stHorizontalBlock"]:first-child > [data-testid="stColumn"]:nth-child(2) {
+                flex-grow: 1.7 !important;
+            }
+            .st-key-single_image_review_header button p,
+            .st-key-single_image_review_controls button p {
+                font-size: 0.8rem !important;
+                line-height: 1.1 !important;
+            }
         }
 
         /* Make best-of-three images clickable without a visible button. */

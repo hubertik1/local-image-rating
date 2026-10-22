@@ -476,6 +476,10 @@ def render_best_of_three_screen() -> None:
 
 
 def render_rating_screen() -> None:
+    if st.session_state.test_option == TEST_OPTION_SINGLE_IMAGE_REVIEW:
+        render_single_image_review_screen()
+        return
+
     if st.button("← Back to setup", key="back_to_setup_btn"):
         navigate_to(PAGE_SETUP)
 
@@ -485,10 +489,6 @@ def render_rating_screen() -> None:
 
     if st.session_state.test_option == TEST_OPTION_BEST_OF_THREE:
         render_best_of_three_screen()
-        return
-
-    if st.session_state.test_option == TEST_OPTION_SINGLE_IMAGE_REVIEW:
-        render_single_image_review_screen()
         return
 
     images = [Path(path) for path in st.session_state.images]

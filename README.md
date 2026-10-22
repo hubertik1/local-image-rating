@@ -64,6 +64,9 @@ Click `Great!`, `Good concept but needs improvement`, or `Delete` (shortcuts `1`
 `2`, and `3`) to record the rating and advance immediately. `Previous` returns to
 the preceding image, highlights its saved rating, and lets you replace it.
 `Delete` is a rating only; it does not remove the image file.
+The choices stay in a fixed bottom bar: green for `Great!`, amber for improvement,
+and red for `Delete`. The full image fits the available screen space above the bar
+without cropping, so the buttons stay in the same place for every image.
 
 `Finish and save CSV` is available at any time. The export includes only rated
 images, with columns `name`, `test_option`, `image_name`, `image_path`, and `rating`.
@@ -182,6 +185,9 @@ Kliknij `Great!`, `Good concept but needs improvement` lub `Delete` (skroty `1`,
 `2` i `3`), aby zapisac ocene i od razu przejsc dalej. `Previous` wraca do
 poprzedniego obrazu, podswietla zapisana ocene i pozwala ja zmienic.
 `Delete` jest tylko ocena; nie usuwa pliku obrazu.
+Przyciski pozostaja w stalym dolnym pasku: zielony dla `Great!`, zolty dla poprawy
+i czerwony dla `Delete`. Caly obraz wypelnia dostepne miejsce nad paskiem bez
+przycinania, a przyciski nie zmieniaja polozenia przy przechodzeniu dalej.
 
 Przycisk `Finish and save CSV` jest dostepny w dowolnym momencie. Eksport obejmuje
 tylko ocenione obrazy i zawiera kolumny `name`, `test_option`, `image_name`,
