@@ -33,13 +33,17 @@ def render_setup_screen() -> None:
     st.title("Image Rating App")
 
     image_root = get_source_image_root()
-    with st.sidebar:
-        st.header("Browse folders")
-        st.caption("Image location")
-        st.text(str(image_root.resolve()))
-        st.button("Browse computer…", key="browse_computer", on_click=open_folder_browser, args=(image_root,), width="stretch")
-        if st.session_state.get("source_image_root"):
-            st.button("Use default folder", key="use_default_folder", on_click=use_default_image_folder, width="stretch")
+    folder_panel = st.container(border=True)
+    with folder_panel:
+        st.subheader("Choose images")
+        browse_col, location_col = st.columns([1, 3], vertical_alignment="center")
+        with browse_col:
+            st.button("Browse computer…", key="browse_computer", type="primary", on_click=open_folder_browser, args=(image_root,), width="stretch")
+            if st.session_state.get("source_image_root"):
+                st.button("Use default folder", key="use_default_folder", on_click=use_default_image_folder, width="stretch")
+        with location_col:
+            st.caption("Image location")
+            st.text(str(image_root.resolve()))
     try:
         all_image_paths = get_image_paths(image_root)
     except OSError as error:
@@ -56,7 +60,7 @@ def render_setup_screen() -> None:
         label = "Main folder" if folder == "." else folder
         return f"{label} ({len(folder_images[folder])} images)"
 
-    with st.sidebar:
+    with folder_panel:
         selected_folder = st.selectbox(
             "Folder to evaluate",
             options=folder_options,

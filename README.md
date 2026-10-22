@@ -21,7 +21,8 @@ You can organize images in subfolders, for example:
 Then you can enable `Show labels` in the app to display the folder name as a label.
 
 ### Choose a folder to evaluate
-In the `Browse folders` panel, click `Browse computer…`. Use `Jump to` for a drive
+On the front page, click the prominent `Browse computer…` button in `Choose images`,
+above the name and test settings. Use `Jump to` for a drive
 or common location, select a subfolder and click `Open`, or enter a `Folder path`.
 Click `Use this folder` to load its images directly; copying them is unnecessary.
 The browser shows folders on the computer running the app. `Use default folder`
@@ -148,7 +149,8 @@ Mozesz ulozyc obrazy w podfolderach, np.:
 Wtedy po wlaczeniu `Show labels` aplikacja pokazuje nazwe folderu jako label.
 
 ### Wybor folderu do oceny
-W panelu `Browse folders` kliknij `Browse computer…`. Przejdz do dysku lub lokalizacji
+Na stronie startowej, w sekcji `Choose images` nad imieniem i ustawieniami testu,
+kliknij widoczny przycisk `Browse computer…`. Przejdz do dysku lub lokalizacji
 przez `Jump to`, wybierz podfolder i kliknij `Open` albo wpisz `Folder path`.
 Kliknij `Use this folder`, aby wczytac obrazy bez kopiowania. Przegladarka pokazuje
 foldery komputera, na ktorym dziala aplikacja. `Use default folder` wraca do `new_images/`.
